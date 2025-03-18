@@ -57,7 +57,9 @@ export default function ContentCategoriesPage() {
   const handleAddSubmit = async () => {
     try {
       const category = await formAdd.validateFields();
+      
       const res = await addCategery(category)
+      console.log("category", res)
       if (res.status === 201) {
         messageApi.open({
           type: 'success',
@@ -66,8 +68,13 @@ export default function ContentCategoriesPage() {
         formAdd.resetFields();
         setIsCreateDialogOpen(false)
         fetchCategories()
+        // setCategories(
+        //   [...categories,
+        //     category.data
+        //   ]
+        // )
       }
-      else if (res.status == 500) {
+      else {
         messageApi.open({
           type: 'error',
           content: res.message,
@@ -75,6 +82,10 @@ export default function ContentCategoriesPage() {
       }
     } catch (error) {
       console.log("Validation failed:", error);
+      messageApi.open({
+        type: 'error',
+        content: error +"",
+      })
     }
   };
 
@@ -133,7 +144,7 @@ export default function ContentCategoriesPage() {
   }
 
   const fetchCategories = async () => {
-    const res = await getCategoryForAdminPage()
+    const res = searchTerm != "" ? await searchCategoryByName(searchTerm) : await getCategoryForAdminPage()
     setCategories(res)
   }
 
