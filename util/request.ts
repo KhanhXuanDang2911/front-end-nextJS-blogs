@@ -44,7 +44,7 @@ export const put = async <T>(path: string, data: any): Promise<T> => {
 };
 
 export const patch = async <T>(path: string, data: any): Promise<T> => {
-  const res = await fetch(`${API_SERVER}${path}`, {
+  const res:any = await fetch(`${API_SERVER}${path}`, {
     method: "PATCH",
     headers: {
       Accept: "application/json",
@@ -57,7 +57,7 @@ export const patch = async <T>(path: string, data: any): Promise<T> => {
     throw new Error(`PATCH ${path} failed: ${res.statusText}`);
   }
 
-  return res.json();
+  return res;
 };
 
 export const del = async <T>(path: string): Promise<T> => {
@@ -68,7 +68,5 @@ export const del = async <T>(path: string): Promise<T> => {
   if (!res.ok) {
     throw new Error(`DELETE ${path} failed: ${res.statusText}`);
   }
-  
-  console.log("res", res)
-  return res
+    return res
 };

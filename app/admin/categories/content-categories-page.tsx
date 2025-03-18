@@ -57,7 +57,7 @@ export default function ContentCategoriesPage() {
   const handleAddSubmit = async () => {
     try {
       const category = await formAdd.validateFields();
-      
+
       const res = await addCategery(category)
       console.log("category", res)
       if (res.status === 201) {
@@ -84,7 +84,7 @@ export default function ContentCategoriesPage() {
       console.log("Validation failed:", error);
       messageApi.open({
         type: 'error',
-        content: error +"",
+        content: error + "",
       })
     }
   };
@@ -111,7 +111,7 @@ export default function ContentCategoriesPage() {
       console.log("Validation failed:", error);
       messageApi.open({
         type: 'error',
-        content: error +"",
+        content: error + "",
       })
     }
   };
@@ -138,7 +138,7 @@ export default function ContentCategoriesPage() {
 
       messageApi.open({
         type: 'error',
-        content: error +"",
+        content: error + "",
       })
     }
   }
@@ -181,15 +181,15 @@ export default function ContentCategoriesPage() {
             className="pl-8"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                handleSearch(); 
+                handleSearch();
               }
-            }}      
+            }}
           />
-        
+
         </div>
         <Button onClick={() => handleSearch()}>
-              Search
-            </Button>
+          Search
+        </Button>
       </div>
 
       <div className="rounded-md border">
@@ -276,14 +276,14 @@ export default function ContentCategoriesPage() {
           </DialogHeader>
           {selectedCategory && (
             <Form form={formEdit} layout="horizontal" style={{ marginTop: 20 }} labelCol={{ span: 3 }}
-            wrapperCol={{ span: 21 }} >
+              wrapperCol={{ span: 21 }} >
               <Form.Item
                 label="Id"
-                name="id" 
+                name="id"
               >
-                <Input readOnly/>
+                <Input readOnly />
               </Form.Item>
-              
+
               <Form.Item
                 label="Name"
                 name="name"
@@ -292,7 +292,7 @@ export default function ContentCategoriesPage() {
 
                 <Input placeholder="Enter category name" />
               </Form.Item>
-              
+
             </Form>
           )}
           <DialogFooter>
