@@ -28,10 +28,6 @@ export function SiteHeader() {
       href: "/articles",
     },
     {
-      label: "Contact",
-      href: "/contact",
-    },
-    {
       label: "Admin",
       href: "/admin",
     },
