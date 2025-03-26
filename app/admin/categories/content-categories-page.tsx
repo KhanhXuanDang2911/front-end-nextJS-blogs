@@ -1,5 +1,5 @@
 "use client"
-
+import { LoadingOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
@@ -21,7 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Search } from "lucide-react"
-import { Form, message } from "antd";
+import { Form, message, Spin } from "antd";
 import { addCategery, deleteCategory, getCategoryForAdminPage, searchCategoryByName, updateCategery } from "@/service/categoryService"
 
 export default function ContentCategoriesPage() {
@@ -34,6 +34,7 @@ export default function ContentCategoriesPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<any>(null)
+  const [isLoading, setIsloading] = useState<any>(false)
 
   const handleSearch = async () => {
     const categories = await searchCategoryByName(searchTerm)
@@ -56,10 +57,9 @@ export default function ContentCategoriesPage() {
 
   const handleAddSubmit = async () => {
     try {
+      setIsloading(true);
       const category = await formAdd.validateFields();
-
       const res = await addCategery(category)
-      console.log("category", res)
       if (res.status === 201) {
         messageApi.open({
           type: 'success',
@@ -87,10 +87,12 @@ export default function ContentCategoriesPage() {
         content: error + "",
       })
     }
+    setIsloading(false);
   };
 
   const handleEditSubmit = async () => {
     try {
+      setIsloading(true);
       const category = await formEdit.validateFields();
       const res = await updateCategery(category)
       if (res.status === 202) {
@@ -114,9 +116,11 @@ export default function ContentCategoriesPage() {
         content: error + "",
       })
     }
+    setIsloading(false);
   };
 
   const handleDeleteSubmit = async (selectedCategory: any) => {
+    setIsloading(true);
     try {
       const res = await deleteCategory(selectedCategory.id)
       if (res.status === 205) {
@@ -141,6 +145,7 @@ export default function ContentCategoriesPage() {
         content: error + "",
       })
     }
+    setIsloading(false);
   }
 
   const fetchCategories = async () => {
@@ -149,7 +154,9 @@ export default function ContentCategoriesPage() {
   }
 
   useEffect(() => {
+    setIsloading(true);
     fetchCategories()
+    setIsloading(false);
   }, []);
 
   useEffect(() => {
@@ -204,32 +211,35 @@ export default function ContentCategoriesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell className="font-medium">{category.id}</TableCell>
-                <TableCell className="font-medium">{category.name}</TableCell>
-                {/* <TableCell>{category.articleCount}</TableCell> */}
-                {/* <TableCell>{category.createdAt}</TableCell> */}
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleEdit(category)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDelete(category)} className="text-red-600">
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+            {isLoading ? <><Spin indicator={<LoadingOutlined spin />} size="large" /></> :
+              <>
+                {categories.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell className="font-medium">{category.id}</TableCell>
+                    <TableCell className="font-medium">{category.name}</TableCell>
+                    {/* <TableCell>{category.articleCount}</TableCell> */}
+                    {/* <TableCell>{category.createdAt}</TableCell> */}
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleEdit(category)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDelete(category)} className="text-red-600">
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>}
           </TableBody>
         </Table>
       </div>

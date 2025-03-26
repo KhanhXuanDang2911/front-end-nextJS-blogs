@@ -42,18 +42,6 @@ const routes = [
     color: "text-orange-500",
   },
   {
-    label: "Comments",
-    icon: MessageSquare,
-    href: "/admin/comments",
-    color: "text-emerald-500",
-  },
-  {
-    label: "Reactions",
-    icon: ThumbsUp,
-    href: "/admin/reactions",
-    color: "text-blue-500",
-  },
-  {
     label: "View Public Site",
     icon: Globe,
     href: "/",
@@ -62,7 +50,7 @@ const routes = [
   {
     label: "User Dashboard",
     icon: UserCircle,
-    href: "/dashboard",
+    href: "/user/dashboard",
     color: "text-yellow-500",
   },
 ]

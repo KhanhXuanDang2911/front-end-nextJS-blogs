@@ -1,50 +1,39 @@
-export const getnewsForAdminPage = async (): Promise<any[]> => {
-    const news = [
-        {
-          id: 1,
-          title: "New Technology Breakthrough",
-          category: "Technology",
-          author: "John Doe",
-          status: "Published",
-          publishedAt: "2023-06-15",
-          views: 1245,
-        },
-        {
-          id: 2,
-          title: "Global Economic Summit Results",
-          category: "Business",
-          author: "Jane Smith",
-          status: "Published",
-          publishedAt: "2023-06-20",
-          views: 980,
-        },
-        {
-          id: 3,
-          title: "Sports Championship Finals",
-          category: "Sports",
-          author: "Bob Johnson",
-          status: "Draft",
-          publishedAt: null,
-          views: 0,
-        },
-        {
-          id: 4,
-          title: "New Entertainment Series Launch",
-          category: "Entertainment",
-          author: "Alice Brown",
-          status: "Published",
-          publishedAt: "2023-07-05",
-          views: 2340,
-        },
-        {
-          id: 5,
-          title: "Political Developments in Europe",
-          category: "Politics",
-          author: "Charlie Wilson",
-          status: "Under Review",
-          publishedAt: null,
-          views: 0,
-        },
-      ]
-      return news
-}
+import { del, get, patch, post } from "@/util/request";
+
+const api: string = "news/";
+
+// Lấy danh sách tin tức cho trang admin
+export const getNewsForAdminPage = async (): Promise<any[]> => {
+    const path: string = `${api}`;
+    const response: any = await get(path);
+    return response.data;
+};
+
+// Tìm kiếm tin tức theo tiêu đề
+export const searchNewsByTitle = async (title: string): Promise<any[]> => {
+    const path: string = `${api}?search=${title}`;
+    const response: any = await get(path);
+    return response.data;
+};
+
+// Thêm tin tức mới
+export const addNews = async (news: any): Promise<any> => {
+    const path: string = `${api}`;
+    const response: any = await post(path, news);
+    return response;
+};
+
+// Cập nhật tin tức
+export const updateNews = async (news: any): Promise<any> => {
+    const path: string = `${api}${news.id}/`;
+    const response: any = await patch(path, news);
+    return response;
+};
+
+// Xóa tin tức
+export const deleteNews = async (id: any): Promise<any> => {
+    const path: string = `${api}${id}/`;
+    const response: any = await del(path);
+    console.log("response", response);
+    return response;
+};

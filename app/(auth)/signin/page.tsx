@@ -34,7 +34,7 @@ export default function SignInPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Mock successful login
-      if (email === "user@example.com" && password === "password") {
+      if (email === "1@gmail.com" && password === "1") {
         // Store user info in localStorage (in a real app, use secure cookies or tokens)
         localStorage.setItem(
           "user",

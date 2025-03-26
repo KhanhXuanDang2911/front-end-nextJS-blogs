@@ -88,7 +88,6 @@ export default function NewPostPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <SiteHeader />
       <main className="flex-1 bg-background">
         <div className="container py-8">
           <Toaster />
@@ -336,42 +335,6 @@ export default function NewPostPage() {
                 </CardFooter>
               </Card>
 
-              <Card
-                className="border-t-4 border-t-brand-pink shadow-lg animate-fade-in"
-                style={{ animationDelay: "0.2s" }}
-              >
-                <CardHeader className="bg-gradient-to-r from-brand-pink/10 to-transparent">
-                  <CardTitle>SEO Settings</CardTitle>
-                  <CardDescription>Optimize your post for search engines</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="meta-title" className="text-brand-pink font-medium">
-                      Meta Title
-                    </Label>
-                    <Input
-                      id="meta-title"
-                      placeholder="SEO title"
-                      value={metaTitle}
-                      onChange={(e) => setMetaTitle(e.target.value)}
-                      className="border-brand-pink/20 focus-visible:ring-brand-pink"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="meta-description" className="text-brand-orange font-medium">
-                      Meta Description
-                    </Label>
-                    <Textarea
-                      id="meta-description"
-                      placeholder="SEO description"
-                      rows={3}
-                      value={metaDescription}
-                      onChange={(e) => setMetaDescription(e.target.value)}
-                      className="border-brand-orange/20 focus-visible:ring-brand-orange"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>

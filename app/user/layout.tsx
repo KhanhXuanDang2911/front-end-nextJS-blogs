@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, FileText, Settings, LogOut, User, PlusCircle } from "lucide-react"
+import { LayoutDashboard, FileText, Settings, LogOut, User, PlusCircle, ThumbsUp, MessageSquare } from "lucide-react"
 
 export default function UserLayout({
   children,
@@ -74,56 +74,12 @@ export default function UserLayout({
                 New Post
               </Link>
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg" alt={user?.name || "User"} />
-                    <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/user/dashboard">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/user/posts">
-                    <FileText className="mr-2 h-4 w-4" />
-                    <span>My Posts</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/user/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/user/settings">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/signout">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign out</span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link href={'/user/profile'} className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="/placeholder.svg" alt={user?.name || "User"} />
+                <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
+              </Avatar>
+            </Link>
           </div>
         </div>
       </header>
@@ -143,15 +99,22 @@ export default function UserLayout({
               </Link>
             </Button>
             <Button variant="ghost" className="justify-start" asChild>
-              <Link href="/user/profile">
-                <User className="mr-2 h-4 w-4" />
-                Profile
+              <Link href="/user/comments">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Comments
+              </Link>
+            </Button>
+
+            <Button variant="ghost" className="justify-start" asChild>
+              <Link href="/user/reactions">
+                <ThumbsUp className="mr-2 h-4 w-4" />
+                Reactions
               </Link>
             </Button>
             <Button variant="ghost" className="justify-start" asChild>
-              <Link href="/user/settings">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
+              <Link href="/user/profile">
+                <User className="mr-2 h-4 w-4" />
+                Profile
               </Link>
             </Button>
             <Button variant="ghost" className="justify-start text-red-500 hover:text-red-500 hover:bg-red-50" asChild>

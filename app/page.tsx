@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
@@ -11,166 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, MessageSquare, ThumbsUp, Search, TagIcon, ArrowRight, Sparkles } from "lucide-react"
+import { getNewsForAdminPage } from "@/service/newsService"
 
-// Sample blog data
-const allPosts = [
-  {
-    id: 1,
-    title: "The Future of Artificial Intelligence in Healthcare",
-    excerpt: "Exploring how AI is revolutionizing medical diagnostics, treatment plans, and patient care.",
-    category: "Technology",
-    author: "Dr. Jane Smith",
-    publishedAt: "2023-07-15",
-    readTime: "8 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 24,
-    reactions: 156,
-    tags: ["AI", "Healthcare", "Technology", "Future"],
-  },
-  {
-    id: 2,
-    title: "Global Economic Trends to Watch in 2023",
-    excerpt: "Analysis of emerging economic patterns and their potential impact on markets worldwide.",
-    category: "Business",
-    author: "Michael Johnson",
-    publishedAt: "2023-07-12",
-    readTime: "6 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 18,
-    reactions: 92,
-    tags: ["Economics", "Business", "Global", "Trends"],
-  },
-  {
-    id: 3,
-    title: "Championship Finals: A Historic Showdown",
-    excerpt: "Recap of the thrilling final match that kept fans on the edge of their seats.",
-    category: "Sports",
-    author: "Sarah Williams",
-    publishedAt: "2023-07-10",
-    readTime: "5 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 32,
-    reactions: 215,
-    tags: ["Sports", "Championship", "Finals"],
-  },
-  {
-    id: 4,
-    title: "New Streaming Series Breaking All Records",
-    excerpt: "How this surprise hit became the most-watched show in streaming history.",
-    category: "Entertainment",
-    author: "Robert Chen",
-    publishedAt: "2023-07-08",
-    readTime: "4 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 45,
-    reactions: 278,
-    tags: ["Entertainment", "Streaming", "TV", "Records"],
-  },
-  {
-    id: 5,
-    title: "10 Tech Gadgets That Will Define 2023",
-    excerpt: "A comprehensive look at the most innovative tech gadgets that are shaping this year.",
-    category: "Technology",
-    author: "Michael Johnson",
-    publishedAt: "2023-06-30",
-    readTime: "6 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 64,
-    reactions: 342,
-    tags: ["Technology", "Gadgets", "Innovation", "2023"],
-  },
-  {
-    id: 6,
-    title: "Understanding the Housing Market Shift",
-    excerpt: "A detailed analysis of the current housing market trends and future predictions.",
-    category: "Business",
-    author: "Emily Rodriguez",
-    publishedAt: "2023-06-28",
-    readTime: "7 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 37,
-    reactions: 185,
-    tags: ["Housing", "Market", "Business", "Real Estate"],
-  },
-  {
-    id: 7,
-    title: "The Science Behind Sustainable Eating",
-    excerpt: "Understanding the environmental and health benefits of sustainable food choices.",
-    category: "Health",
-    author: "Lisa Thompson",
-    publishedAt: "2023-06-25",
-    readTime: "8 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 29,
-    reactions: 203,
-    tags: ["Health", "Sustainability", "Food", "Environment"],
-  },
-  {
-    id: 8,
-    title: "Political Reforms: What They Mean for Citizens",
-    excerpt: "Breaking down the latest political reforms and their impact on everyday life.",
-    category: "Politics",
-    author: "David Wilson",
-    publishedAt: "2023-06-22",
-    readTime: "9 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 56,
-    reactions: 271,
-    tags: ["Politics", "Reforms", "Government", "Citizens"],
-  },
-  {
-    id: 9,
-    title: "Understanding Blockchain Beyond Cryptocurrency",
-    excerpt: "How blockchain technology is being applied across industries beyond just digital currencies.",
-    category: "Technology",
-    author: "Robert Chen",
-    publishedAt: "2023-06-15",
-    readTime: "10 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 37,
-    reactions: 215,
-    tags: ["Blockchain", "Technology", "Cryptocurrency", "Innovation"],
-  },
-  {
-    id: 10,
-    title: "The Rise of Quantum Computing",
-    excerpt: "Exploring the potential and challenges of quantum computing technology.",
-    category: "Technology",
-    author: "Sarah Williams",
-    publishedAt: "2023-05-28",
-    readTime: "12 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 42,
-    reactions: 189,
-    tags: ["Quantum", "Computing", "Technology", "Future"],
-  },
-  {
-    id: 11,
-    title: "Mental Health in the Digital Age",
-    excerpt: "How technology is both helping and hurting our mental wellbeing.",
-    category: "Health",
-    author: "Dr. Emily Chen",
-    publishedAt: "2023-05-20",
-    readTime: "9 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 78,
-    reactions: 324,
-    tags: ["Mental Health", "Digital", "Wellbeing", "Technology"],
-  },
-  {
-    id: 12,
-    title: "The Future of Remote Work",
-    excerpt: "Predictions for how remote work will evolve in the coming years.",
-    category: "Business",
-    author: "James Wilson",
-    publishedAt: "2023-05-15",
-    readTime: "7 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 53,
-    reactions: 217,
-    tags: ["Remote Work", "Business", "Future", "Workplace"],
-  },
-]
 
 // Popular tags
 const popularTags = [
@@ -186,15 +28,12 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [allPosts, setAllPosts] = useState<any[]>([])
 
   const filteredPosts = searchQuery
     ? allPosts.filter(
         (post) =>
-          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
+          post.title.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : allPosts
 
@@ -219,7 +58,19 @@ export default function HomePage() {
     setIsSearching(false)
   }
 
+  const fetchNews = async () => {
+      setIsLoading(true);
+      const res = await getNewsForAdminPage()
+      setAllPosts(res)
+      setIsLoading(false);
+  }
+
+  useEffect(() => {
+      fetchNews()
+    }, []);
+
   return (
+    
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
       <main className="flex-1">
@@ -327,9 +178,9 @@ export default function HomePage() {
                       alt={post.title}
                       className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                     />
-                    <Badge className={`absolute top-2 left-2 category-badge-${post.category.toLowerCase()}`}>
+                    {/* <Badge className={`absolute top-2 left-2 category-badge-${post.category.toLowerCase()}`}>
                       {post.category}
-                    </Badge>
+                    </Badge> */}
                   </div>
                   <CardContent className="p-4">
                     <div className="space-y-2">
@@ -339,7 +190,7 @@ export default function HomePage() {
                         </Link>
                       </h3>
                       <p className="text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                      <div className="flex flex-wrap gap-2 mt-2">
+                      {/* <div className="flex flex-wrap gap-2 mt-2">
                         {post.tags.map((tag: string) => (
                           <Link href={`/tag/${tag.toLowerCase()}`} key={tag}>
                             <Badge variant="outline" className="hover:bg-secondary transition-colors">
@@ -347,7 +198,7 @@ export default function HomePage() {
                             </Badge>
                           </Link>
                         ))}
-                      </div>
+                      </div> */}
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
