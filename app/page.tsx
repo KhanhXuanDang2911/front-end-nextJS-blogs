@@ -12,16 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, MessageSquare, ThumbsUp, Search, TagIcon, ArrowRight, Sparkles } from "lucide-react"
 import { getNewsForAdminPage } from "@/service/newsService"
-
-
-// Popular tags
-const popularTags = [
-  { name: "Technology", count: 42 },
-  { name: "Business", count: 28 },
-  { name: "Health", count: 24 },
-  { name: "AI", count: 35 },
-  { name: "Future", count: 29 },
-]
+import { getCategoryForAdminPage } from "@/service/categoryService"
 
 export default function HomePage() {
   const [visiblePosts, setVisiblePosts] = useState(6)
@@ -29,6 +20,7 @@ export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [allPosts, setAllPosts] = useState<any[]>([])
+  const [popularTags, setPopularTags] = useState<any[]>([])
 
   const filteredPosts = searchQuery
     ? allPosts.filter(
@@ -65,8 +57,16 @@ export default function HomePage() {
       setIsLoading(false);
   }
 
+  const fetchCategoryPopu = async () => {
+    setIsLoading(true);
+    const res = await getCategoryForAdminPage(5, '-news_count')
+    setPopularTags(res)
+    setIsLoading(false);
+}
+
   useEffect(() => {
       fetchNews()
+      fetchCategoryPopu()
     }, []);
 
   return (
@@ -118,7 +118,7 @@ export default function HomePage() {
               {popularTags.map((tag, index) => (
                 <Link
                   key={tag.name}
-                  href={`/tag/${tag.name.toLowerCase()}`}
+                  href={`/tag/${tag.id}`}
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
@@ -128,7 +128,7 @@ export default function HomePage() {
                   >
                     <TagIcon className="h-3 w-3 text-brand-blue" />
                     {tag.name}
-                    <span className="ml-1 text-xs text-muted-foreground">({tag.count})</span>
+                    <span className="ml-1 text-xs text-muted-foreground">({tag.news_count})</span>
                   </Badge>
                 </Link>
               ))}
@@ -178,9 +178,9 @@ export default function HomePage() {
                       alt={post.title}
                       className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                     />
-                    {/* <Badge className={`absolute top-2 left-2 category-badge-${post.category.toLowerCase()}`}>
-                      {post.category}
-                    </Badge> */}
+                    <Badge className={`absolute top-2 left-2 category-badge-${post.category_name}`}>
+                      {post.category_name}
+                    </Badge>
                   </div>
                   <CardContent className="p-4">
                     <div className="space-y-2">
@@ -207,11 +207,11 @@ export default function HomePage() {
                         <div className="flex items-center gap-4">
                           <span className="flex items-center gap-1">
                             <MessageSquare className="h-4 w-4" />
-                            {post.comments}
+                            {post.comment_count}
                           </span>
                           <span className="flex items-center gap-1">
                             <ThumbsUp className="h-4 w-4" />
-                            {post.reactions}
+                            {post.reaction_count}
                           </span>
                         </div>
                       </div>

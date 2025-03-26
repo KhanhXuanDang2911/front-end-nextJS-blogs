@@ -2,8 +2,8 @@ import { del, get, post, put } from "@/util/request";
 
 const api: string = 'categories/'
 
-export const getCategoryForAdminPage = async (): Promise<any[]> => {
-    const path:string = `${api}`;
+export const getCategoryForAdminPage = async (limit?: number, sort: string = '-id') : Promise<any[]> => {
+    const path:string = limit ? `${api}?limit=${limit}&order_by=${sort}` : `${api}?order_by=${sort}`;
     const response:any = await get(path);
     return response.data;
     // const categories = [
