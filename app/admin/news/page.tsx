@@ -115,7 +115,7 @@ export default function NewsManagementPage() {
             <TableRow>
               <TableHead>Id</TableHead>
               <TableHead>Title</TableHead>
-              <TableHead>Content</TableHead>
+              <TableHead>Excerpt</TableHead>
               <TableHead>Author</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Image</TableHead>
@@ -130,7 +130,7 @@ export default function NewsManagementPage() {
                 <TableRow key={news.id}>
                   <TableCell className="font-medium">{news.id}</TableCell>
                   <TableCell className="font-medium">{news.title}</TableCell>
-                  <TableCell className="font-normal">  {news.content.length > 100 ? news.content.slice(0, 100) + '...' : news.content}</TableCell>
+                  <TableCell className="font-normal">{news.excerpt}</TableCell>
                   <TableCell className="font-normal">{news.author_id}</TableCell> {/* Hiển thị ID của tác giả */}
                   <TableCell className="font-normal">{news.status}</TableCell>
                   <TableCell className="font-normal">{news.image ? <img src={news.image} alt="News Image" className="w-16 h-16 object-cover" /> : 'No Image'}</TableCell> {/* Hiển thị hình ảnh nếu có */}

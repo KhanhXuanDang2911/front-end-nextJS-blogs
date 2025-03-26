@@ -1,162 +1,120 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, ImageIcon, LinkIcon, Save, Loader2 } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
-import { Toaster } from "@/components/ui/toaster"
-
-// Sample categories
-const categories = [
-  "Technology",
-  "Business",
-  "Sports",
-  "Entertainment",
-  "Politics",
-  "Health",
-  "Science",
-  "Education",
-  "Lifestyle",
-  "Arts",
-  "Finance",
-]
-
-// Sample posts data
-const posts = [
-  {
-    id: "1",
-    title: "10 Tips for Better Productivity",
-    excerpt: "Learn how to maximize your productivity with these proven strategies.",
-    content:
-      "# 10 Tips for Better Productivity\n\nProductivity is essential in today's fast-paced world. Here are 10 tips to help you maximize your efficiency and get more done in less time.\n\n## 1. Prioritize Your Tasks\nNot all tasks are created equal. Identify the most important tasks and tackle them first.\n\n## 2. Use the Pomodoro Technique\nWork in focused 25-minute intervals, followed by 5-minute breaks.\n\n## 3. Eliminate Distractions\nTurn off notifications and create a dedicated workspace.\n\n## 4. Set Clear Goals\nKnow exactly what you want to accomplish each day.\n\n## 5. Take Regular Breaks\nRegular breaks help maintain focus and prevent burnout.\n\n## 6. Use Task Management Tools\nTools like Trello, Asana, or Todoist can help you stay organized.\n\n## 7. Learn to Say No\nDon't overcommit yourself. It's okay to decline requests that don't align with your priorities.\n\n## 8. Batch Similar Tasks\nGroup similar tasks together to minimize context switching.\n\n## 9. Optimize Your Environment\nEnsure your workspace is comfortable and conducive to productivity.\n\n## 10. Reflect and Adjust\nRegularly review your productivity system and make adjustments as needed.",
-    category: "Lifestyle",
-    tags: "productivity, time management, efficiency, work, focus",
-    status: "Published",
-    publishedAt: "2023-07-15",
-    featuredImage: "/placeholder.svg?height=400&width=600",
-    metaTitle: "10 Proven Tips to Boost Your Productivity",
-    metaDescription:
-      "Discover 10 effective strategies to enhance your productivity, manage time better, and achieve more in your personal and professional life.",
-  },
-  {
-    id: "2",
-    title: "Understanding Modern Web Development",
-    excerpt: "A comprehensive guide to the latest web development technologies and practices.",
-    content:
-      "# Understanding Modern Web Development\n\nWeb development has evolved significantly over the past decade. This article explores the current landscape of modern web development.\n\n## Frontend Frameworks\nFrameworks like React, Vue, and Angular have revolutionized how we build user interfaces.\n\n## Backend Technologies\nNode.js, Django, Ruby on Rails, and other backend technologies provide robust solutions for server-side development.\n\n## Full-Stack Development\nThe line between frontend and backend is increasingly blurred, with many developers now working across the entire stack.\n\n## DevOps and Deployment\nContinuous integration, continuous deployment, and containerization have transformed how we deploy and manage web applications.\n\n## Performance Optimization\nTechniques like code splitting, lazy loading, and server-side rendering help create faster, more responsive web applications.\n\n## Accessibility\nEnsuring web applications are accessible to all users is now a fundamental aspect of web development.\n\n## Security\nProtecting user data and preventing vulnerabilities is more important than ever in modern web development.",
-    category: "Technology",
-    tags: "web development, programming, technology, coding, frontend, backend",
-    status: "Draft",
-    publishedAt: null,
-    featuredImage: "/placeholder.svg?height=400&width=600",
-    metaTitle: "Modern Web Development: A Comprehensive Guide",
-    metaDescription:
-      "Explore the latest technologies, frameworks, and best practices in modern web development for building robust and scalable applications.",
-  },
-]
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, ImageIcon, LinkIcon, Save, Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import { getNewsDetail, updateNews } from "@/service/newsService";
 
 export default function EditPostContentPage({
   id,
+  categories,
 }: {
-  id: string
+  id: string;
+  categories: any;
 }) {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [post, setPost] = useState<any>(null)
-  const [title, setTitle] = useState("")
-  const [content, setContent] = useState("")
-  const [excerpt, setExcerpt] = useState("")
-  const [category, setCategory] = useState("")
-  const [tags, setTags] = useState("")
-  const [featuredImage, setFeaturedImage] = useState<File | null>(null)
-  const [currentImage, setCurrentImage] = useState("")
-  const [status, setStatus] = useState("draft")
-  const [metaTitle, setMetaTitle] = useState("")
-  const [metaDescription, setMetaDescription] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Các state để chỉnh sửa bài viết
+  const [title, setTitle] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("");
+  const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [featuredImage, setFeaturedImage] = useState<File | null>(null);
+  const [status, setStatus] = useState("draft");
 
   useEffect(() => {
-    // In a real app, you would fetch the post from your API
     const fetchPost = async () => {
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 800))
-
-        const foundPost = posts.find((p) => p.id == id)
-
-        if (foundPost) {
-          setPost(foundPost)
-          setTitle(foundPost.title)
-          setContent(foundPost.content)
-          setExcerpt(foundPost.excerpt)
-          setCategory(foundPost.category.toLowerCase())
-          setTags(foundPost.tags)
-          setCurrentImage(foundPost.featuredImage)
-          setStatus(foundPost.status.toLowerCase())
-          setMetaTitle(foundPost.metaTitle)
-          setMetaDescription(foundPost.metaDescription)
+        const idPost = Number(id);
+        const foundPost = await getNewsDetail(idPost);
+        if (foundPost.status === 200) {
+          // Giả sử dữ liệu trả về nằm trong foundPost.data
+          const data = foundPost.data;
+          setTitle(data.title || "");
+          setExcerpt(data.excerpt || "");
+          setContent(data.content || "");
+          setCategory(data.category || "");
+          setCurrentImage(data.featuredImage || null);
+          setStatus(data.status || "draft");
         } else {
-          // Post not found
           toast({
             title: "Post not found",
             description: "The post you're trying to edit doesn't exist.",
             variant: "destructive",
-          })
-          router.push("/user/posts")
+          });
+          // Bạn có thể chuyển hướng nếu cần: router.push("/user/posts")
         }
       } catch (error) {
-        console.error("Error fetching post:", error)
+        console.error("Error fetching post:", error);
         toast({
           title: "Error",
           description: "Failed to load post data. Please try again.",
           variant: "destructive",
-        })
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchPost()
-  }, [id, router])
+    fetchPost();
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
+    e.preventDefault();
+    setIsSaving(true);
 
     try {
-      // In a real app, you would update the post via API
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Show success message
-      toast({
-        title: "Post updated",
-        description: "Your post has been updated successfully.",
-      })
-
-      // Redirect to posts page
-      router.push("/user/posts")
+      const postObj = {
+        id,
+        title,
+        excerpt,
+        content,
+        category,
+        featuredImage,
+        status,
+      };
+      
+      const res = await updateNews(postObj)
+      if(res.status === 204){
+        toast({
+          title: "Post updated",
+          description: "Your post has been updated successfully.",
+        });
+  
+        router.push("/user/posts");
+  
+      }
+      else{
+        toast({
+          title: "update failed"
+        });
+      }
     } catch (error) {
-      console.error("Error updating post:", error)
+      console.error("Error updating post:", error);
       toast({
         title: "Error",
         description: "Failed to update post. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -166,7 +124,7 @@ export default function EditPostContentPage({
           <p className="text-muted-foreground">Loading post data...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -209,6 +167,7 @@ export default function EditPostContentPage({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Phần chỉnh sửa nội dung bài viết */}
         <div className="lg:col-span-2">
           <Card className="border-t-4 border-t-brand-blue shadow-lg animate-fade-in">
             <CardHeader className="bg-gradient-to-r from-brand-blue/10 to-transparent">
@@ -309,6 +268,7 @@ export default function EditPostContentPage({
           </Card>
         </div>
 
+        {/* Phần thiết lập cài đặt bài viết */}
         <div>
           <Card
             className="mb-6 border-t-4 border-t-brand-purple shadow-lg animate-fade-in"
@@ -323,31 +283,18 @@ export default function EditPostContentPage({
                 <Label htmlFor="category" className="text-brand-purple font-medium">
                   Category
                 </Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={category} onValueChange={(value) => setCategory(value)}>
                   <SelectTrigger className="border-brand-purple/20 focus:ring-brand-purple">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat.toLowerCase()}>
-                        {cat}
+                    {categories.map((cat: any) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tags" className="text-brand-pink font-medium">
-                  Tags
-                </Label>
-                <Input
-                  id="tags"
-                  placeholder="Enter tags separated by commas"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  className="border-brand-pink/20 focus-visible:ring-brand-pink"
-                />
               </div>
 
               <div className="space-y-2">
@@ -365,7 +312,9 @@ export default function EditPostContentPage({
                     </div>
                   )}
                   <ImageIcon className="h-8 w-8 mx-auto text-brand-blue/50" />
-                  <p className="mt-2 text-sm text-muted-foreground">Drag and drop an image, or click to browse</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Drag and drop an image, or click to browse
+                  </p>
                   <Input
                     id="featured-image"
                     type="file"
@@ -373,7 +322,7 @@ export default function EditPostContentPage({
                     accept="image/*"
                     onChange={(e) => {
                       if (e.target.files && e.target.files[0]) {
-                        setFeaturedImage(e.target.files[0])
+                        setFeaturedImage(e.target.files[0]);
                       }
                     }}
                   />
@@ -392,9 +341,9 @@ export default function EditPostContentPage({
                 <Label htmlFor="status" className="text-brand-green font-medium">
                   Status
                 </Label>
-                <Select value={status} onValueChange={setStatus}>
+                <Select value={status} onValueChange={(value) => setStatus(value)}>
                   <SelectTrigger className="border-brand-green/20 focus:ring-brand-green">
-                    <SelectValue />
+                    <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>
@@ -424,10 +373,8 @@ export default function EditPostContentPage({
               </Button>
             </CardFooter>
           </Card>
-
         </div>
       </div>
     </div>
-  )
+  );
 }
-
