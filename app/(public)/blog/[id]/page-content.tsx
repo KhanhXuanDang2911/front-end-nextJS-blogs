@@ -29,32 +29,14 @@ import {
   Loader2,
   TagIcon,
 } from "lucide-react"
+import CommentContent from "./comment"
+import CommentSection from "./comment-section"
 
-export default function BlogPostPageContent({ post, comments, relatedPosts }: { post: any, comments: any, relatedPosts: any }) {
+export default function BlogPostPageContent({ id, post, comments, relatedPosts }: { post: any, comments: any, relatedPosts: any, id: any }) {
   const [activeReaction, setActiveReaction] = useState<string | null>(null)
-  const [commentText, setCommentText] = useState("")
-  const [replyingTo, setReplyingTo] = useState<number | null>(null)
-  const [replyText, setReplyText] = useState("")
 
   const handleReaction = (type: string) => {
     setActiveReaction(activeReaction === type ? null : type)
-  }
-
-  const handleComment = () => {
-    if (commentText.trim()) {
-      // In a real app, you would send this to your API
-      console.log("New comment:", commentText)
-      setCommentText("")
-    }
-  }
-
-  const handleReply = (commentId: number) => {
-    if (replyText.trim()) {
-      // In a real app, you would send this to your API
-      console.log("New reply to comment", commentId, ":", replyText)
-      setReplyText("")
-      setReplyingTo(null)
-    }
   }
 
   if (!post) {
@@ -225,153 +207,7 @@ export default function BlogPostPageContent({ post, comments, relatedPosts }: { 
                 </Button>
               </div>
             </div>
-            {/* Comments Section */}
-            <div className="mb-8 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              <h3 className="text-2xl font-bold mb-6 gradient-text">Comments ({comments.length})</h3>
-
-              {/* Comment Form */}
-              <Card className="mb-6 border-t-4 border-t-brand-blue">
-                <CardContent className="pt-6">
-                  <div className="flex gap-4">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
-                      <AvatarFallback>YA</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <Textarea
-                        placeholder="Write a comment..."
-                        className="mb-4 resize-none border-brand-blue/20 focus-visible:ring-brand-blue"
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                      />
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={handleComment}
-                          className="bg-gradient-to-r from-brand-blue to-brand-purple text-white"
-                        >
-                          Post Comment
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Comments List */}
-              <div className="space-y-6">
-                {comments.map((comment: any) => (
-                  <div
-                    key={comment.id}
-                    className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow animate-scale-in"
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={comment.user.image} alt={comment.user.name} />
-                          <AvatarFallback>{comment.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{comment.user.name}</div>
-                          <div className="text-sm text-muted-foreground">{comment.date}</div>
-                        </div>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">More</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Report</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    <p className="mb-4">{comment.content}</p>
-                    <div className="flex items-center gap-4 mb-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-muted-foreground hover:text-brand-blue hover:bg-brand-blue/10"
-                      >
-                        <ThumbsUp className="h-4 w-4 mr-2" />
-                        {comment.likes}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-muted-foreground hover:text-brand-purple hover:bg-brand-purple/10"
-                        onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                      >
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Reply
-                      </Button>
-                    </div>
-
-                    {/* Reply Form */}
-                    {replyingTo === comment.id && (
-                      <div className="flex gap-3 mb-4 pl-10 animate-slide-in">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
-                          <AvatarFallback>YA</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <Textarea
-                            placeholder={`Reply to ${comment.user.name}...`}
-                            className="mb-2 resize-none text-sm border-brand-purple/20 focus-visible:ring-brand-purple"
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                          />
-                          <div className="flex justify-end gap-2">
-                            <Button size="sm" variant="outline" onClick={() => setReplyingTo(null)}>
-                              Cancel
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handleReply(comment.id)}
-                              className="bg-brand-purple text-white hover:bg-brand-purple/90"
-                            >
-                              Reply
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Replies */}
-                    {comment.replies.length > 0 && (
-                      <div className="pl-10 space-y-4 mt-4">
-                        {comment.replies.map((reply: any) => (
-                          <div key={reply.id} className="border-l-2 pl-4 border-brand-blue/30 animate-fade-in">
-                            <div className="flex justify-between items-start mb-2">
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={reply.user.image} alt={reply.user.name} />
-                                  <AvatarFallback>{reply.user.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <div className="font-medium">{reply.user.name}</div>
-                                  <div className="text-xs text-muted-foreground">{reply.date}</div>
-                                </div>
-                              </div>
-                            </div>
-                            <p className="mb-2 text-sm">{reply.content}</p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-muted-foreground text-xs hover:text-brand-blue hover:bg-brand-blue/10"
-                            >
-                              <ThumbsUp className="h-3 w-3 mr-1" />
-                              {reply.likes}
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <CommentSection idBl={id} comments={comments} />
           </div>
         </div>
       </main>
