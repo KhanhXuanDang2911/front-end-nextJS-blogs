@@ -20,23 +20,46 @@ import {
   Clock,
   Calendar,
   MessageSquare,
-  MoreVertical,
   ThumbsUp,
   Heart,
   Smile,
   Frown,
   Zap,
-  Loader2,
-  TagIcon,
+  ThumbsDown,
 } from "lucide-react"
-import CommentContent from "./comment"
 import CommentSection from "./comment-section"
+import { addReaction, deleteReaction, updateReaction } from "@/service/reactionService"
 
-export default function BlogPostPageContent({ id, post, comments, relatedPosts }: { post: any, comments: any, relatedPosts: any, id: any }) {
-  const [activeReaction, setActiveReaction] = useState<string | null>(null)
+export default function BlogPostPageContent({ id, post, comments, relatedPosts, reactionOfUser }: 
+  { post: any, comments: any, relatedPosts: any, id: any, reactionOfUser: any }) {
+  const [activeReaction, setActiveReaction] = useState<any | null>(reactionOfUser ? reactionOfUser : null)
 
-  const handleReaction = (type: string) => {
-    setActiveReaction(activeReaction === type ? null : type)
+  const handleReaction = async(type: string) => {
+    if(activeReaction === null){
+      const reaction = {
+        user_id: 8,
+        news_id: id,
+        type: type
+      }
+      const res = await addReaction(reaction)
+      if(res.status === 201){
+        setActiveReaction(res.data)
+      }
+    }
+    else{
+      if(activeReaction.type == type){
+        const res = await deleteReaction(activeReaction.id)
+        if(res.status === 205) setActiveReaction(null) 
+          return
+      }
+      const reaction = {
+        id: activeReaction.id,
+        type: type
+      }
+      const res = await updateReaction(reaction)
+      console.log("res", res  )
+      if(res.status === 204) setActiveReaction({...activeReaction, type: type})
+    }
   }
 
   if (!post) {
@@ -89,16 +112,16 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-brand-blue" />
-                  <span>{post.publishedAt}</span>
+                  <span>{post.published_at || `Draf`}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-brand-purple" />
-                  <span>{post.readTime}</span>
+                  <span>{post.created_at}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-brand-pink" />
                   <span>{post.comment_count} comments</span>
-                </div>
+                </div> */}
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="h-10 w-10 ring-2 ring-brand-blue/20">
@@ -161,46 +184,47 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
               </div>
               <div className="flex gap-2 mt-4 sm:mt-0">
                 <Button
-                  variant={activeReaction === "like" ? "default" : "outline"}
+                  variant={activeReaction?.type === "love" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleReaction("love")}
+                  className={activeReaction?.type === "love" ? "bg-brand-green text-white" : ""}
+                >
+                  <Smile className="h-4 w-4 mr-2" />
+                  Love
+                </Button>
+                <Button
+                  variant={activeReaction?.type === "like" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleReaction("like")}
-                  className={activeReaction === "like" ? "bg-brand-blue text-white" : ""}
+                  className={activeReaction?.type === "like" ? "bg-brand-blue text-white" : ""}
                 >
+
                   <ThumbsUp className="h-4 w-4 mr-2" />
                   Like
                 </Button>
                 <Button
-                  variant={activeReaction === "love" ? "default" : "outline"}
+                  variant={activeReaction?.type === "dislike" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => handleReaction("love")}
-                  className={activeReaction === "love" ? "bg-brand-red text-white" : ""}
+                  onClick={() => handleReaction("dislike")}
+                  className={activeReaction?.type === "dislike" ? "bg-brand-red text-white" : ""}
                 >
-                  <Heart className="h-4 w-4 mr-2" />
-                  Love
+                  <ThumbsDown className="h-4 w-4 mr-2" />
+                  Dislike
                 </Button>
                 <Button
-                  variant={activeReaction === "wow" ? "default" : "outline"}
+                  variant={activeReaction?.type === "wow" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleReaction("wow")}
-                  className={activeReaction === "wow" ? "bg-brand-yellow text-white" : ""}
+                  className={activeReaction?.type === "wow" ? "bg-brand-yellow text-white" : ""}
                 >
                   <Zap className="h-4 w-4 mr-2" />
                   Wow
                 </Button>
                 <Button
-                  variant={activeReaction === "happy" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleReaction("happy")}
-                  className={activeReaction === "happy" ? "bg-brand-green text-white" : ""}
-                >
-                  <Smile className="h-4 w-4 mr-2" />
-                  Happy
-                </Button>
-                <Button
-                  variant={activeReaction === "sad" ? "default" : "outline"}
+                  variant={activeReaction?.type === "sad" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleReaction("sad")}
-                  className={activeReaction === "sad" ? "bg-brand-purple text-white" : ""}
+                  className={activeReaction?.type === "sad" ? "bg-brand-purple text-white" : ""}
                 >
                   <Frown className="h-4 w-4 mr-2" />
                   Sad

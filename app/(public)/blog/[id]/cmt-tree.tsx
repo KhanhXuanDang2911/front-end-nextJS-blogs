@@ -4,15 +4,17 @@ import CMT_UI from "@/components/ui/cmt-ui";
 export default function CommentTree({ id, parentId, commentsById,
     handleSeemoreSubCmt, handleReply, handleDeleteCmt, handleUpdateCmt
 }: {
-    id: any, parentId: any, commentsById: any, handleSeemoreSubCmt: (parentId: any) => Promise<void>,
-    handleReply: (commentId: number, replyText: string) => void, handleDeleteCmt: (id: any, parentId: any) => void,
-    handleUpdateCmt: (id: any, content: any) => void
+    id: any, parentId: any, commentsById: any, 
+    handleSeemoreSubCmt: (parentId: any) => Promise<void>,
+    handleReply: (commentId: number, replyText: string) => Promise<void>, 
+    handleDeleteCmt: (id: any, parentId: any) => Promise<void>,
+    handleUpdateCmt: (id: any, content: any) => Promise<boolean>
 }) {
 
     const comment = commentsById[id]; // get info of cmt
     const childIds: any[] = comment.childIds // get list id of sub cmt
     return (
-        <li>
+        <li className={`${parentId == 0 ? '' : 'mt-4'}`}>
             <CMT_UI
                 id={id}
                 commentsById={commentsById}

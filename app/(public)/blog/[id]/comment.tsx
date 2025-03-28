@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { addComment } from "@/service/commentService";
 import { deleteComment, updateComment } from "@/service/baseCommentService";
+
 export default function CommentContent({ comments, idBl }:
     { comments: any[], idBl: any }) {
     const [commentText, setCommentText] = useState("")
@@ -120,37 +121,34 @@ export default function CommentContent({ comments, idBl }:
     const handleDeleteCmt = async (id: any, parentId: any) => {
         try {
             const res = await deleteComment(id);
-            console.log("res", res);
             
             if (res.status === 205) {
                 const parent = cmtsObj[parentId];
                 if (!parent) return;
 
                 let newCmtObj = { ...cmtsObj }
-                let commentUpdateCountSub: any = parentId
+                let commentUpdateCountSub: any = id
                 Object.keys(newCmtObj).reverse().forEach(key => {
-                    console.log(key, newCmtObj[key].childIds)
-                })
-                Object.keys(newCmtObj).reverse().forEach(key => {
+                    console.log(key, commentUpdateCountSub, newCmtObj[key].childIds)
                     if (newCmtObj[key].childIds.indexOf(commentUpdateCountSub) != -1) {
+                        
                         newCmtObj = {
                             ...newCmtObj,
-                            [key]: { ...newCmtObj[key], sub_comment_count: newCmtObj[key].sub_comment_count - newCmtObj[id].sub_comment_count}
+                            [key]: { ...newCmtObj[key],
+                                sub_comment_count: newCmtObj[key].sub_comment_count - newCmtObj[id].sub_comment_count - 1}
                         }
                         commentUpdateCountSub = Number(key)
                     }
                 });
-
                 const nextParent = {
-                    ...parent,
+                    ...newCmtObj[parentId],
                     childIds: parent.childIds.filter((it: any) => it !== id),
                     // isShowSubCmt: true
                 };
                 
-                const { [id]: _, ...newCmtsObj } = cmtsObj;
-
+                const { [id]: _, ...newCmtObjFinal } = newCmtObj;
                 setCmts({
-                    ...newCmtsObj,
+                    ...newCmtObjFinal,
                     [parentId]: nextParent,
                 });
             }
@@ -166,8 +164,7 @@ export default function CommentContent({ comments, idBl }:
                 content: content
             }
             const res = await updateComment(cmtUpdate);
-            
-            if (res.status === 202) {
+            if (res.status === 204) {
                 
                 const { [id]: _, ...newCmtsObj } = cmtsObj;
 
@@ -175,13 +172,17 @@ export default function CommentContent({ comments, idBl }:
                     ...newCmtsObj,
                     [id]: {...cmtsObj[id], content: content},
                 });
+                return true
             }
+            return false
         } catch (error) {
             console.error("Lỗi khi edit bình luận:", error);
+            return false
         }
     };
 
-    const totalCmt = 0;
+    const totalCmt = directChildIds.reduce((sum, id) => sum + (cmtsObj[id]?.sub_comment_count + 1 || 0), 0);
+    ;
 
     return (
         <>

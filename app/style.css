@@ -1,0 +1,63 @@
+.button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 130px;
+    height: 45px;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    margin: 5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Hiệu ứng di chuyển từ trái sang phải */
+.btn::before {
+    content: "";
+    width: 130px;
+    height: 45px;
+    background: #1A73E8;
+    position: absolute;
+    left: -130px;
+    transition: all 0.5s;
+}
+
+.btn:hover::before {
+    transform: translateX(130px);
+}
+
+.btn:hover {
+    color: white;
+}
+
+/* Hiệu ứng di chuyển từ phải sang trái */
+.btn-1::before {
+    content: "";
+    width: 130px;
+    height: 45px;
+    background: #1A73E8;
+    position: absolute;
+    right: -130px;
+    transition: all 0.7s;
+}
+
+.btn-1:hover::before {
+    transform: translateX(-130px);
+}
+
+.btn-1:hover {
+    color: white;
+}
+
+/* Cả hai nút chung một kiểu chữ */
+.btn, .btn-1 {
+    position: relative;
+    background: #fff;
+    color: #081828;
+    z-index: 1;
+}
+
+.btn::before, .btn-1::before {
+    z-index: -1;
+}

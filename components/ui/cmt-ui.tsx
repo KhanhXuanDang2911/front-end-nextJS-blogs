@@ -1,14 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import Link from "next/link"
-import Image from "next/image"
-import { SiteHeader } from "@/components/site-header"
-import { Footer } from "@/components/footer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Button as ButtonAntd } from "antd";
+
 import {
     Facebook,
     Twitter,
@@ -34,14 +29,15 @@ import ContentOfComment from "@/app/(public)/blog/[id]/content-of-comment"
 
 export default function CMT_UI({ id, childIds, comment,
     parentId, handleSeemoreSubCmt,
-    commentsById, handleReply, handleDeleteCmt, handleUpdateCmt
+    commentsById, handleReply, handleDeleteCmt, handleUpdateCmt,
 }:
     {
         childIds: any[], comment: any, parentId: any,
         handleSeemoreSubCmt: (parentId: any) => Promise<void>
-        , id: any, commentsById: any, handleReply: (commentId: number, replyText: string) => void,
-        handleDeleteCmt: (id: any, parentId: any) => void,
-        handleUpdateCmt: (id: any, content: any) => void
+        , id: any, commentsById: any,
+        handleReply: (commentId: number, replyText: string) => Promise<void>,
+        handleDeleteCmt: (id: any, parentId: any) => Promise<void>,
+        handleUpdateCmt: (id: any, content: any) => Promise<boolean>,
     }) {
     const [replyText, setReplyText] = useState('')
     const [showRely, setShowRely] = useState(false)
@@ -62,7 +58,6 @@ export default function CMT_UI({ id, childIds, comment,
     const handleEdit = () => {
         setIsEditing(true)
     }
-
     const [isEditing, setIsEditing] = useState(false);
 
     return (
@@ -71,22 +66,67 @@ export default function CMT_UI({ id, childIds, comment,
                 <div
                     key={comment.id}
                 >
-                    <div className={`${parentId == 0 ? 'p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow animate-scale-in' :
-                        'mt-6 rounded-lg pt-4 border-l-2 pl-4 border-brand-blue/30 animate-fade-in'}`}>
-                        <div className="flex justify-between items-start mb-4 ">
-                            <div className="flex items-center gap-3">
-                                <Avatar className="h-10 w-10">
+                    <div className={''}>
+                        <div className="flex justify-between items-start">
+                            <div className="flex items-start gap-3 flex-1">
+                                <Avatar className={`${parentId == 0 ? 'h-10 w-10' : 'h-7 w-7'}`}>
                                     <AvatarImage src={comment.author_avatar} alt={comment.author_name} />
                                     <AvatarFallback>{comment.author_name.charAt(0)}</AvatarFallback>
                                 </Avatar>
-                                <div>
-                                    <div className="font-medium">{comment.author_name}</div>
-                                    <div className="text-sm text-muted-foreground">{comment.created_at}</div>
+                                <div className="flex flex-col flex-1 gap-1">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="font-medium text-md">{comment.author_name}</span>
+                                        <span className="text-xs">{comment.created_at}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-2.5">
+                                        <ContentOfComment handleUpdateComment={handleUpdateCmt}
+                                            isEditing={isEditing} initialText={comment.content}
+                                            id={id} setIsEditing={setIsEditing} />
+                                        <div className="flex items-center gap-4">
+                                            {/* <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-muted-foreground hover:text-green-400 hover:bg-brand-blue/10"
+                                        > */}
+                                            <div className="text-muted-foreground hover:text-green-400"
+                                            >
+                                                <ThumbsUp className="h-4 w-4 mr-2" />
+
+                                            </div>
+
+                                            {/* {comment.likes} */}
+                                            {/* </Button> */}
+                                            {/* <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-muted-foreground hover:text-brand-purple hover:bg-brand-purple/10"
+                                                onClick={() => setShowRely(!showRely)}
+                                            > */}
+                                            <div className="text-muted-foreground hover:text-green-400 flex items-center cursor-pointer whitespace-nowrap text-sm font-medium" onClick={() => setShowRely(!showRely)}>
+                                                <MessageSquare className="h-4 w-4 mr-2" onClick={() => setShowRely(!showRely)} />
+                                                Reply
+                                            </div>
+                                            {/* </Button> */}
+                                            {comment.sub_comment_count > 0 &&
+                                                <div className={`text-muted-foreground hover:text-green-400 ${commentsById[id].isShowSubCmt ? ' text-green-500' : ''} flex flex-row gap-2 cursor-pointer whitespace-nowrap text-sm font-medium`}
+                                                    onClick={() => handleSeemoreSubCmt(comment.id)} >
+                                                    {commentsById[id].isShowSubCmt ? <UpOutlined /> : <DownOutlined />}
+                                                    See more {comment.sub_comment_count} replies
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
+
                             </div>
                             <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon">
+                                <DropdownMenuTrigger >
+                                    <Button variant="ghost" size="icon" className="" style={{
+                                        all: "unset",
+                                        outline: "none",
+                                        boxShadow: "none",
+                                        background: "transparent",
+                                    }}>
                                         <MoreVertical className="h-4 w-4" />
                                         <span className="sr-only">More</span>
                                     </Button>
@@ -120,41 +160,11 @@ export default function CMT_UI({ id, childIds, comment,
                             </Modal> */}
                         </div>
                         {/* <p className="mb-4">{comment.content}</p> */}
-                        <ContentOfComment isEditing={isEditing} initialText={comment.content}/>
-                        <div className="flex items-center gap-4 mb-4">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-muted-foreground hover:text-green-400 hover:bg-brand-blue/10"
-                            >
-                                <ThumbsUp className="h-4 w-4 mr-2" />
-                                {/* {comment.likes} */}
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-muted-foreground hover:text-brand-purple hover:bg-brand-purple/10"
-                                onClick={() => setShowRely(!showRely)}
-                            >
-                                <MessageSquare className="h-4 w-4 mr-2" />
-                                Reply
-                            </Button>
-                            {comment.sub_comment_count > 0 && <Button
-                                variant="ghost"
-                                size="sm"
-                                className={` text-muted-foreground hover:text-blue-500 hover:bg-brand-purple/10`}
-                                onClick={() => handleSeemoreSubCmt(comment.id)}
-                            >
-                                <div className={`${commentsById[id].isShowSubCmt ? 'text-blue-600' : ''} flex flex-row gap-2`}>
-                                    {commentsById[id].isShowSubCmt ? <UpOutlined /> : <DownOutlined />}
-                                    See more {comment.sub_comment_count} replies
-                                </div>
 
-                            </Button>}
-                        </div>
+
                         {/* Reply Form */}
                         {showRely && (
-                            <div className="flex gap-3 mb-4 pl-10 animate-slide-in">
+                            <div className="mt-4 flex gap-3 mb-4 pl-10 animate-slide-in">
                                 <Avatar className="h-8 w-8">
                                     <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
                                     <AvatarFallback>YA</AvatarFallback>
@@ -162,31 +172,31 @@ export default function CMT_UI({ id, childIds, comment,
                                 <div className="flex-1">
                                     <Textarea
                                         placeholder={`Reply to ${comment.author_name}...`}
-                                        className="mb-2 resize-none text-sm border-brand-purple/20 focus-visible:ring-brand-purple"
+                                        className="mb-2"
                                         value={replyText}
                                         onChange={(e) => setReplyText(e.target.value)}
                                     />
-                                    <div className="flex justify-end gap-2">
-                                        <Button size="sm" variant="outline" onClick={() => setShowRely(false)}>
+                                    <div className="mt-2 flex justify-end gap-2">
+                                        <ButtonAntd size="small" onClick={() => setShowRely(false)}>
                                             Cancel
-                                        </Button>
-                                        <Button
-                                            size="sm"
+                                        </ButtonAntd>
+                                        <ButtonAntd
+                                            size="small"
+                                            type="primary"
                                             onClick={() => {
                                                 handleReply(comment.id, replyText)
                                                 setReplyText('')
                                                 setShowRely(false)
                                             }}
-                                            className="bg-brand-purple text-white hover:bg-brand-purple/90"
                                         >
                                             Reply
-                                        </Button>
+                                        </ButtonAntd>
                                     </div>
                                 </div>
                             </div>
                         )}
                         {childIds.length > 0 && (
-                            <ol>
+                            <ol className="ml-8">
                                 {childIds.map(childId => (
                                     <CommentTree key={childId}
                                         id={childId}

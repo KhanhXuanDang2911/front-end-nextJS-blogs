@@ -205,8 +205,8 @@ export default function ContentCategoriesPage() {
             <TableRow>
               <TableHead>Id</TableHead>
               <TableHead>Name</TableHead>
-              {/* <TableHead>Articles</TableHead> */}
-              {/* <TableHead>Created At</TableHead> */}
+              <TableHead>Articles</TableHead>
+              <TableHead>Created At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -217,8 +217,8 @@ export default function ContentCategoriesPage() {
                   <TableRow key={category.id}>
                     <TableCell className="font-medium">{category.id}</TableCell>
                     <TableCell className="font-medium">{category.name}</TableCell>
-                    {/* <TableCell>{category.articleCount}</TableCell> */}
-                    {/* <TableCell>{category.createdAt}</TableCell> */}
+                    <TableCell>{category.news_count}</TableCell>
+                    <TableCell>{category.created_at}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

@@ -18,17 +18,11 @@ export function Footer() {
               <Link href="/" className="text-muted-foreground hover:text-foreground">
                 Home
               </Link>
-              <Link href="/featured" className="text-muted-foreground hover:text-foreground">
-                Featured
-              </Link>
               <Link href="/tags" className="text-muted-foreground hover:text-foreground">
                 Tags
               </Link>
               <Link href="/articles" className="text-muted-foreground hover:text-foreground">
                 Articles
-              </Link>
-              <Link href="/contact" className="text-muted-foreground hover:text-foreground">
-                Contact
               </Link>
             </nav>
           </div>

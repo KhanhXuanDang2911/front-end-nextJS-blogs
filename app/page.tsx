@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Clock, MessageSquare, ThumbsUp, Search, TagIcon, ArrowRight, Sparkles } from "lucide-react"
 import { getNewsForAdminPage } from "@/service/newsService"
 import { getCategoryForAdminPage } from "@/service/categoryService"
+import './style.css'
 
 export default function HomePage() {
   const [visiblePosts, setVisiblePosts] = useState(6)
@@ -24,9 +25,9 @@ export default function HomePage() {
 
   const filteredPosts = searchQuery
     ? allPosts.filter(
-        (post) =>
-          post.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      (post) =>
+        post.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : allPosts
 
   const displayedPosts = isSearching ? filteredPosts : filteredPosts.slice(0, visiblePosts)
@@ -51,10 +52,10 @@ export default function HomePage() {
   }
 
   const fetchNews = async () => {
-      setIsLoading(true);
-      const res = await getNewsForAdminPage()
-      setAllPosts(res)
-      setIsLoading(false);
+    setIsLoading(true);
+    const res = await getNewsForAdminPage()
+    setAllPosts(res)
+    setIsLoading(false);
   }
 
   const fetchCategoryPopu = async () => {
@@ -62,46 +63,52 @@ export default function HomePage() {
     const res = await getCategoryForAdminPage(5, '-news_count')
     setPopularTags(res)
     setIsLoading(false);
-}
+  }
 
   useEffect(() => {
-      fetchNews()
-      fetchCategoryPopu()
-    }, []);
+    fetchNews()
+    fetchCategoryPopu()
+  }, []);
 
   return (
-    
+
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 animated-bg text-white">
+        {/* <section className="w-full py-12 md:py-24 lg:py-32 animated-bg text-white">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-start gap-4 md:gap-8 max-w-3xl">
-              <div className="inline-flex items-center justify-center p-2 bg-white bg-opacity-20 rounded-full mb-2 animate-bounce-in">
-                <Sparkles className="h-5 w-5 mr-2" />
-                <span className="text-sm font-medium">Discover Amazing Content</span>
-              </div>
-              <h1 className="text-5xl font-bold tracking-tight lg:text-7xl">
-                Hello <span className="inline-block animate-wave">👋</span>, we are NewsVibe.
-              </h1>
-              <h2 className="text-5xl font-bold tracking-tight lg:text-7xl">See our thoughts, stories, and ideas.</h2>
-              <p className="max-w-[700px] text-lg text-white/80 md:text-xl">
-                Subscribe to our email newsletter and be the first to receive exciting updates, exclusive content, and
-                special offers straight to your inbox.
-              </p>
-              <div className="flex w-full max-w-md items-center space-x-2">
-                <Input
-                  type="email"
-                  placeholder="Email Address"
-                  className="rounded-full bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30"
-                />
-                <Button type="submit" className="rounded-full bg-white text-brand-blue hover:bg-white/90">
-                  Subscribe
-                </Button>
-              </div>
+              
             </div>
           </div>
-        </section>
+        </section> */}
+        {/* <img src="jenda.jpg" /> */}
+        <div className="relative w-full h-[90vh] bg-cover bg-top flex items-center justify-center text-center text-white" style={{ backgroundImage: `url("jenda.jpg")` }}>
+          <div className="absolute inset-0 bg-[#081828] opacity-80">
+            
+          </div>
+          <div className="relative z-10 px-6">
+        <span className="inline-block bg-blue-500 text-[#fff] px-4 py-2 rounded-full text-sm font-semibold mb-[15px]">
+          Stay Updated Daily
+        </span>
+        
+        <h1 className="text-[32px] font-bold leading-10 text-[#fff] mb-5">Latest News & Insights From <br/> Around The World</h1>
+        
+        <p className="text-[#fff] text-[14px] max-w-[550px] mx-auto">
+        Stay informed with the latest updates, breaking news, and in-depth analysis on a wide range of topics, 
+          from global events to tech innovations, lifestyle trends, and more – all in one place.
+        </p>
+
+        <div className="mt-6 flex justify-center gap-4">
+          <Link href={'/tags'} className="button btn">
+            View Tags
+          </Link>
+          <Link href={'/artcles'} className="button btn-1">
+            Read Articles
+          </Link>
+        </div>
+        </div>
+        </div>
 
         <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
           <div className="container px-4 md:px-6">
@@ -118,7 +125,7 @@ export default function HomePage() {
               {popularTags.map((tag, index) => (
                 <Link
                   key={tag.name}
-                  href={`/tag/${tag.id}`}
+                  href={`/tags/${tag.id}`}
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
@@ -202,7 +209,7 @@ export default function HomePage() {
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {post.readTime}
+                          {post.created_at}
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="flex items-center gap-1">

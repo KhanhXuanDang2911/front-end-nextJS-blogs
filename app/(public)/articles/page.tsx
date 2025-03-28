@@ -1,7 +1,9 @@
+import { getNewsForAdminPage } from "@/service/newsService";
 import ArticlesPage from "./page-content";
 
-export default function Articles(){
+export default async function Articles(){
+    const allPost = await getNewsForAdminPage()
     return <>
-        <ArticlesPage />   
+        <ArticlesPage allPosts={allPost}/>   
     </>
 }

@@ -2,8 +2,14 @@ import { del, get, patch, post } from "@/util/request";
 
 const api: string = "news/";
 
-export const getNewsForAdminPage = async (): Promise<any[]> => {
-    const path: string = `${api}`;
+export const getNewsForAdminPage = async (limit?:any, offset?: any): Promise<any[]> => {
+    const path: string = limit ? `${api}?limit=${limit}&offset=${offset}` : `${api}`;
+    const response: any = await get(path);
+    return limit ? response.data.results : response.data;
+};
+
+export const getNewsByCategoryId = async (categoryId: any) : Promise<any[]> => {
+    const path: string = `${api}?category=${categoryId}`;
     const response: any = await get(path);
     return response.data;
 };

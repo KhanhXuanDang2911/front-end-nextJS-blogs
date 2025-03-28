@@ -16,10 +16,6 @@ export function SiteHeader() {
       href: "/",
     },
     {
-      label: "Featured",
-      href: "/featured",
-    },
-    {
       label: "Tags",
       href: "/tags",
     },
@@ -55,7 +51,7 @@ export function SiteHeader() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
+          {/* <Button variant="ghost" size="icon" className="text-muted-foreground">
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button>
@@ -69,7 +65,7 @@ export function SiteHeader() {
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
-          </Button>
+          </Button> */}
           <Button className="rounded-full bg-primary text-primary-foreground" asChild>
             <Link href="/signin">Sign In</Link>
           </Button>

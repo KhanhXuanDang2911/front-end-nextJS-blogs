@@ -10,178 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Clock, MessageSquare, ThumbsUp, ArrowRight, Loader2, TagIcon } from "lucide-react"
 
 // Sample blog data
-const allPosts = [
-  {
-    id: 1,
-    title: "The Future of Artificial Intelligence in Healthcare",
-    excerpt: "Exploring how AI is revolutionizing medical diagnostics, treatment plans, and patient care.",
-    category: "Technology",
-    author: "Dr. Jane Smith",
-    authorId: "jane-smith",
-    publishedAt: "2023-07-15",
-    readTime: "8 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 24,
-    reactions: 156,
-    tags: ["AI", "Healthcare", "Technology", "Future"],
-  },
-  {
-    id: 2,
-    title: "Global Economic Trends to Watch in 2023",
-    excerpt: "Analysis of emerging economic patterns and their potential impact on markets worldwide.",
-    category: "Business",
-    author: "Michael Johnson",
-    authorId: "michael-johnson",
-    publishedAt: "2023-07-12",
-    readTime: "6 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 18,
-    reactions: 92,
-    tags: ["Economics", "Business", "Global", "Trends"],
-  },
-  {
-    id: 3,
-    title: "Championship Finals: A Historic Showdown",
-    excerpt: "Recap of the thrilling final match that kept fans on the edge of their seats.",
-    category: "Sports",
-    author: "Sarah Williams",
-    authorId: "sarah-williams",
-    publishedAt: "2023-07-10",
-    readTime: "5 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 32,
-    reactions: 215,
-    tags: ["Sports", "Championship", "Finals"],
-  },
-  {
-    id: 4,
-    title: "New Streaming Series Breaking All Records",
-    excerpt: "How this surprise hit became the most-watched show in streaming history.",
-    category: "Entertainment",
-    author: "Robert Chen",
-    authorId: "robert-chen",
-    publishedAt: "2023-07-08",
-    readTime: "4 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 45,
-    reactions: 278,
-    tags: ["Entertainment", "Streaming", "TV", "Records"],
-  },
-  {
-    id: 5,
-    title: "10 Tech Gadgets That Will Define 2023",
-    excerpt: "A comprehensive look at the most innovative tech gadgets that are shaping this year.",
-    category: "Technology",
-    author: "Michael Johnson",
-    authorId: "michael-johnson",
-    publishedAt: "2023-06-30",
-    readTime: "6 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 64,
-    reactions: 342,
-    tags: ["Technology", "Gadgets", "Innovation", "2023"],
-  },
-  {
-    id: 6,
-    title: "Understanding the Housing Market Shift",
-    excerpt: "A detailed analysis of the current housing market trends and future predictions.",
-    category: "Business",
-    author: "Emily Rodriguez",
-    authorId: "emily-rodriguez",
-    publishedAt: "2023-06-28",
-    readTime: "7 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 37,
-    reactions: 185,
-    tags: ["Housing", "Market", "Business", "Real Estate"],
-  },
-  {
-    id: 7,
-    title: "The Science Behind Sustainable Eating",
-    excerpt: "Understanding the environmental and health benefits of sustainable food choices.",
-    category: "Health",
-    author: "Lisa Thompson",
-    authorId: "lisa-thompson",
-    publishedAt: "2023-06-25",
-    readTime: "8 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 29,
-    reactions: 203,
-    tags: ["Health", "Sustainability", "Food", "Environment"],
-  },
-  {
-    id: 8,
-    title: "Political Reforms: What They Mean for Citizens",
-    excerpt: "Breaking down the latest political reforms and their impact on everyday life.",
-    category: "Politics",
-    author: "David Wilson",
-    authorId: "david-wilson",
-    publishedAt: "2023-06-22",
-    readTime: "9 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 56,
-    reactions: 271,
-    tags: ["Politics", "Reforms", "Government", "Citizens"],
-  },
-  {
-    id: 9,
-    title: "Understanding Blockchain Beyond Cryptocurrency",
-    excerpt: "How blockchain technology is being applied across industries beyond just digital currencies.",
-    category: "Technology",
-    author: "Robert Chen",
-    authorId: "robert-chen",
-    publishedAt: "2023-06-15",
-    readTime: "10 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 37,
-    reactions: 215,
-    tags: ["Blockchain", "Technology", "Cryptocurrency", "Innovation"],
-  },
-  {
-    id: 10,
-    title: "The Rise of Quantum Computing",
-    excerpt: "Exploring the potential and challenges of quantum computing technology.",
-    category: "Technology",
-    author: "Sarah Williams",
-    authorId: "sarah-williams",
-    publishedAt: "2023-05-28",
-    readTime: "12 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 42,
-    reactions: 189,
-    tags: ["Quantum", "Computing", "Technology", "Future"],
-  },
-  {
-    id: 11,
-    title: "Mental Health in the Digital Age",
-    excerpt: "How technology is both helping and hurting our mental wellbeing.",
-    category: "Health",
-    author: "Dr. Emily Chen",
-    authorId: "emily-chen",
-    publishedAt: "2023-05-20",
-    readTime: "9 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 78,
-    reactions: 324,
-    tags: ["Mental Health", "Digital", "Wellbeing", "Technology"],
-  },
-  {
-    id: 12,
-    title: "The Future of Remote Work",
-    excerpt: "Predictions for how remote work will evolve in the coming years.",
-    category: "Business",
-    author: "James Wilson",
-    authorId: "james-wilson",
-    publishedAt: "2023-05-15",
-    readTime: "7 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 53,
-    reactions: 217,
-    tags: ["Remote Work", "Business", "Future", "Workplace"],
-  },
-]
 
-export default function ArticlesPage() {
+export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
   const [visiblePosts, setVisiblePosts] = useState(6)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -209,12 +39,12 @@ export default function ArticlesPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {displayedPosts.map((post, index) => (
               <Card
                 key={post.id}
                 className="overflow-hidden card-hover-effect animate-scale-in"
-                style={{ animationDelay: `${index * 0.05}s` }}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="aspect-video relative">
                   <img
@@ -222,8 +52,8 @@ export default function ArticlesPage() {
                     alt={post.title}
                     className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                   />
-                  <Badge className={`absolute top-2 left-2 category-badge-${post.category.toLowerCase()}`}>
-                    {post.category}
+                  <Badge className={`absolute top-2 left-2 category-badge-${post.category_name}`}>
+                    {post.category_name}
                   </Badge>
                 </div>
                 <CardContent className="p-4">
@@ -234,35 +64,19 @@ export default function ArticlesPage() {
                       </Link>
                     </h3>
                     <p className="text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-sm text-muted-foreground">By</span>
-                      <Link href={`/author/${post.authorId}`} className="text-sm font-medium hover:text-primary">
-                        {post.author}
-                      </Link>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {post.tags.map((tag) => (
-                        <Link href={`/tag/${tag.toLowerCase()}`} key={tag}>
-                          <Badge variant="outline" className="hover:bg-secondary transition-colors">
-                            <TagIcon className="h-3 w-3 mr-1" />
-                            {tag}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {post.readTime}
+                        {post.created_at}
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1">
                           <MessageSquare className="h-4 w-4" />
-                          {post.comments}
+                          {post.comment_count}
                         </span>
                         <span className="flex items-center gap-1">
                           <ThumbsUp className="h-4 w-4" />
-                          {post.reactions}
+                          {post.reaction_count}
                         </span>
                       </div>
                     </div>

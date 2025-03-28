@@ -51,15 +51,16 @@ export const getCategoryForAdminPage = async (limit?: number, sort: string = '-i
     // return categories
 }
 
+export const getCategoryDetail = async (id: any): Promise<any> => {
+    const path: string = `${api}${id}/`;
+    const response: any = await get(path);
+    return response.data;
+};
+
 export const searchCategoryByName = async(name:string):Promise<any[]> => {
     const path:string = `${api}?search=${name}`;
     const response:any = await get(path);
     return response.data;
-}
-
-export const getCategory = async():Promise<string[]> => {
-    const categories = ["Technology", "Business", "Sports", "Entertainment", "Politics", "Health", "Science", "Education"]
-    return categories
 }
 
 export const addCategery = async(category: string):Promise<any> => {
