@@ -2,10 +2,11 @@
 import CMT_UI from "@/components/ui/cmt-ui";
 
 export default function CommentTree({ id, parentId, commentsById,
-    handleSeemoreSubCmt, handleReply, handleDeleteCmt
+    handleSeemoreSubCmt, handleReply, handleDeleteCmt, handleUpdateCmt
 }: {
     id: any, parentId: any, commentsById: any, handleSeemoreSubCmt: (parentId: any) => Promise<void>,
-    handleReply: (commentId: number, replyText: string) => void, handleDeleteCmt: (id: any, parentId: any) => void
+    handleReply: (commentId: number, replyText: string) => void, handleDeleteCmt: (id: any, parentId: any) => void,
+    handleUpdateCmt: (id: any, content: any) => void
 }) {
 
     const comment = commentsById[id]; // get info of cmt
@@ -21,6 +22,7 @@ export default function CommentTree({ id, parentId, commentsById,
                 parentId={parentId}
                 handleReply={handleReply}
                 handleDeleteCmt={handleDeleteCmt}
+                handleUpdateCmt={handleUpdateCmt}
             />
         </li>
     )

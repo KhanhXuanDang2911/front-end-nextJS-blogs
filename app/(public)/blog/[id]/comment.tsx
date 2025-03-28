@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { addComment } from "@/service/commentService";
-import { deleteComment } from "@/service/baseCommentService";
+import { deleteComment, updateComment } from "@/service/baseCommentService";
 export default function CommentContent({ comments, idBl }:
     { comments: any[], idBl: any }) {
     const [commentText, setCommentText] = useState("")
@@ -66,7 +66,6 @@ export default function CommentContent({ comments, idBl }:
                     childIds: [res.data.id, ...parent.childIds],
                     isShowSubCmt: true
                 };
-                console.log("nextParent", nextParent)
                 setCmts({
                     ...cmtsObj,
                     [0]: nextParent,
@@ -126,11 +125,26 @@ export default function CommentContent({ comments, idBl }:
             if (res.status === 205) {
                 const parent = cmtsObj[parentId];
                 if (!parent) return;
-    
+
+                let newCmtObj = { ...cmtsObj }
+                let commentUpdateCountSub: any = parentId
+                Object.keys(newCmtObj).reverse().forEach(key => {
+                    console.log(key, newCmtObj[key].childIds)
+                })
+                Object.keys(newCmtObj).reverse().forEach(key => {
+                    if (newCmtObj[key].childIds.indexOf(commentUpdateCountSub) != -1) {
+                        newCmtObj = {
+                            ...newCmtObj,
+                            [key]: { ...newCmtObj[key], sub_comment_count: newCmtObj[key].sub_comment_count - newCmtObj[id].sub_comment_count}
+                        }
+                        commentUpdateCountSub = Number(key)
+                    }
+                });
+
                 const nextParent = {
                     ...parent,
                     childIds: parent.childIds.filter((it: any) => it !== id),
-                    isShowSubCmt: true
+                    // isShowSubCmt: true
                 };
                 
                 const { [id]: _, ...newCmtsObj } = cmtsObj;
@@ -144,6 +158,28 @@ export default function CommentContent({ comments, idBl }:
             console.error("Lỗi khi xóa bình luận:", error);
         }
     };       
+
+    const handleUpdateCmt = async(id: any, content: any) => {
+        try {
+            const cmtUpdate = {
+                id: id,
+                content: content
+            }
+            const res = await updateComment(cmtUpdate);
+            
+            if (res.status === 202) {
+                
+                const { [id]: _, ...newCmtsObj } = cmtsObj;
+
+                setCmts({
+                    ...newCmtsObj,
+                    [id]: {...cmtsObj[id], content: content},
+                });
+            }
+        } catch (error) {
+            console.error("Lỗi khi edit bình luận:", error);
+        }
+    };
 
     const totalCmt = 0;
 
@@ -189,6 +225,7 @@ export default function CommentContent({ comments, idBl }:
                         handleSeemoreSubCmt={handleSeemoreSubCmt}
                         handleReply={handleReply}
                         handleDeleteCmt={handleDeleteCmt}
+                        handleUpdateCmt={handleUpdateCmt}
                     />
                 ))}
             </ol>

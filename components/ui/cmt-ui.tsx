@@ -29,19 +29,42 @@ import {
 import { DownOutlined, UpOutlined } from '@ant-design/icons'
 import CommentTree from "@/app/(public)/blog/[id]/cmt-tree"
 import { useState } from "react"
+import { Form, Input, Modal } from "antd"
+import ContentOfComment from "@/app/(public)/blog/[id]/content-of-comment"
 
-export default function CMT_UI({ id, childIds, comment, 
-    parentId, handleSeemoreSubCmt, 
-    commentsById, handleReply, handleDeleteCmt
+export default function CMT_UI({ id, childIds, comment,
+    parentId, handleSeemoreSubCmt,
+    commentsById, handleReply, handleDeleteCmt, handleUpdateCmt
 }:
     {
-        childIds: any[], comment: any, parentId: any, 
+        childIds: any[], comment: any, parentId: any,
         handleSeemoreSubCmt: (parentId: any) => Promise<void>
-        ,id: any, commentsById: any, handleReply: (commentId: number, replyText: string) => void, 
-        handleDeleteCmt: (id: any, parentId: any) => void
+        , id: any, commentsById: any, handleReply: (commentId: number, replyText: string) => void,
+        handleDeleteCmt: (id: any, parentId: any) => void,
+        handleUpdateCmt: (id: any, content: any) => void
     }) {
     const [replyText, setReplyText] = useState('')
     const [showRely, setShowRely] = useState(false)
+    // const [isModalOpen, setIsModalOpen] = useState(false);
+    // const [formEdit] = Form.useForm();
+    // const showModal = () => {
+    //     setIsModalOpen(true);
+    // };
+
+    // const handleOk = () => {
+    //     setIsModalOpen(false);
+    // };
+
+    // const handleCancel = () => {
+    //     setIsModalOpen(false);
+    // };
+
+    const handleEdit = () => {
+        setIsEditing(true)
+    }
+
+    const [isEditing, setIsEditing] = useState(false);
+
     return (
         <>
             {commentsById[parentId].isShowSubCmt &&
@@ -70,13 +93,34 @@ export default function CMT_UI({ id, childIds, comment,
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem>Report</DropdownMenuItem>
-                                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
                                     <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteCmt(id, parentId)}>
                                         Delete</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
+                            {/* <Modal title="Update Comment" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                                <Form
+                                    form={formEdit}
+                                    style={{ maxWidth: 600, marginTop: 30 }}
+                                >
+                                    <Form.Item
+                                        label="Id"
+                                        name="id"
+                                        hidden
+                                    >
+                                        <Input readOnly />
+                                    </Form.Item>
+                                    <Form.Item name={"content"}
+                                        rules={[{ required: true, message: "Please enter content!" }]}
+
+                                    >
+                                        <Input.TextArea />
+                                    </Form.Item>
+                                </Form>
+                            </Modal> */}
                         </div>
-                        <p className="mb-4">{comment.content}</p>
+                        {/* <p className="mb-4">{comment.content}</p> */}
+                        <ContentOfComment isEditing={isEditing} initialText={comment.content}/>
                         <div className="flex items-center gap-4 mb-4">
                             <Button
                                 variant="ghost"
@@ -151,6 +195,7 @@ export default function CMT_UI({ id, childIds, comment,
                                         handleSeemoreSubCmt={handleSeemoreSubCmt}
                                         handleReply={handleReply}
                                         handleDeleteCmt={handleDeleteCmt}
+                                        handleUpdateCmt={handleUpdateCmt}
                                     />
                                 ))}
                             </ol>

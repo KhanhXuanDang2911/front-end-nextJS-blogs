@@ -1,6 +1,7 @@
 import { getNewsDetail } from "@/service/newsService";
 import BlogPostPageContent from "./page-content";
 import { getCommentsByNewsId } from "@/service/commentService";
+import ContentOfComment from "./content-of-comment";
 const relatedPosts = [
     {
         id: 2,
@@ -30,6 +31,7 @@ export default async function BlogPostPage({
     const post = await getNewsDetail(Number(id))
     const comments = await getCommentsByNewsId(Number(id))
     return <>
+    <ContentOfComment initialText={123}/>
         <BlogPostPageContent id={id} post={post.data} comments={comments} relatedPosts={relatedPosts}/>
     </>
 }
