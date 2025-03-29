@@ -98,7 +98,7 @@ export default function UserLayout({
                 My Posts
               </Link>
             </Button>
-            <Button variant="ghost" className="justify-start" asChild>
+            {/* <Button variant="ghost" className="justify-start" asChild>
               <Link href="/user/comments">
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Comments
@@ -110,7 +110,7 @@ export default function UserLayout({
                 <ThumbsUp className="mr-2 h-4 w-4" />
                 Reactions
               </Link>
-            </Button>
+            </Button> */}
             <Button variant="ghost" className="justify-start" asChild>
               <Link href="/user/profile">
                 <User className="mr-2 h-4 w-4" />

@@ -7,7 +7,7 @@ export function Footer() {
       <div className="container flex flex-col gap-6 py-8 md:py-12">
         <div className="flex flex-col gap-6 md:flex-row md:justify-between">
           <div className="flex flex-col gap-2">
-            <h3 className="text-xl font-bold">NewsVibe</h3>
+            <h3 className="text-xl font-bold">BlogNews</h3>
             <p className="text-muted-foreground max-w-md">
               Your trusted source for the latest news, insights, and stories that matter.
             </p>
@@ -18,17 +18,11 @@ export function Footer() {
               <Link href="/" className="text-muted-foreground hover:text-foreground">
                 Home
               </Link>
-              <Link href="/featured" className="text-muted-foreground hover:text-foreground">
-                Featured
-              </Link>
               <Link href="/tags" className="text-muted-foreground hover:text-foreground">
                 Tags
               </Link>
               <Link href="/articles" className="text-muted-foreground hover:text-foreground">
                 Articles
-              </Link>
-              <Link href="/contact" className="text-muted-foreground hover:text-foreground">
-                Contact
               </Link>
             </nav>
           </div>

@@ -166,14 +166,14 @@ export default function NewsManagementPage() {
       </div>
 
 
-      <div className="flex items-center justify-end space-x-2 py-4">
+      {/* <div className="flex items-center justify-end space-x-2 py-4">
         <Button variant="outline" size="sm">
           <ChevronLeft className="h-4 w-4" /> Previous
         </Button>
         <Button variant="outline" size="sm">
           Next <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
-      </div>
+      </div> */}
 
       {/* Delete News Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

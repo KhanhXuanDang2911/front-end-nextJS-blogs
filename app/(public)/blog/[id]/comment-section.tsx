@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from "react"
 import CommentContent from "./comment"
-import { addSubComment } from "@/service/subCommentService"
 
 export default function CommentSection({ comments, idBl }: { comments: any[], idBl: any }) {
 

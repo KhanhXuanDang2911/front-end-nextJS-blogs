@@ -57,10 +57,11 @@ export const searchUserByName = async (name: string): Promise<any[]> => {
     return response.data;
 }
 
-export const getUserList = async (): Promise<string[]> => {
-    const users = ["Alice", "Bob", "Charlie", "David", "Emma", "Frank", "Grace", "Hannah"];
-    return users;
-}
+export const getUsersDetail = async (id: any): Promise<any> => {
+    const path: string = `${api}${id}/`;
+    const response: any = await get(path);
+    return response.data;
+};
 
 export const addUser = async (user: any): Promise<any> => {
     const path: string = `${api}`;
