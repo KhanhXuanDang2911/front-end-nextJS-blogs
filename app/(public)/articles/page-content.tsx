@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, MessageSquare, ThumbsUp, ArrowRight, Loader2, TagIcon } from "lucide-react"
+import { Clock, MessageSquare, ThumbsUp, ArrowRight, Loader2, TagIcon, Hash } from "lucide-react"
 
 // Sample blog data
 
@@ -31,6 +31,18 @@ export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
       <main className="flex-1">
+      <section className="w-full py-12 md:py-16 lg:py-20 animated-bg text-white">
+          <div className="container px-4 md:px-6 text-center">
+            <div className="inline-flex items-center justify-center p-2 bg-white bg-opacity-20 rounded-full mb-4 animate-bounce-in">
+              <Hash className="h-6 w-6 mr-2" />
+              <span className="text-lg font-medium">Browse Articles</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Articles Around the World</h1>
+            <p className="max-w-[700px] mx-auto text-lg md:text-xl text-white/80">
+              Read and explore articles from around the world on different subjects.
+            </p>
+          </div>
+        </section>
         <div className="container py-12">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
             <h1 className="text-4xl font-bold gradient-text">All Articles</h1>

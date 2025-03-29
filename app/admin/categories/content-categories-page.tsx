@@ -244,7 +244,7 @@ export default function ContentCategoriesPage() {
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
+      {/* <div className="flex items-center justify-end space-x-2 py-4">
         <Button variant="outline" size="sm">
           <ChevronLeft className="h-4 w-4" />
           Previous
@@ -253,7 +253,7 @@ export default function ContentCategoriesPage() {
           Next
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
-      </div>
+      </div> */}
 
       {/* Create Category Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
