@@ -1,61 +1,61 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { SiteHeader } from "@/components/site-header"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Separator } from "@/components/ui/separator"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Facebook, Github, Mail } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { SiteHeader } from "@/components/site-header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SignInPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Kiểm tra nếu đã đăng nhập, chuyển hướng về dashboard
+    const accessToken = localStorage.getItem("access_token");
+    if (accessToken) {
+      router.push("/user/dashboard");
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
-      // In a real app, you would authenticate with a backend
-      // This is a mock authentication
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch("http://localhost:8000/api/auth/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-      // Mock successful login
-      if (true) {
-        // Store user info in localStorage (in a real app, use secure cookies or tokens)
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            name: "John Doe",
-            email: "user@example.com",
-            role: "user",
-          }),
-        )
+      const data = await response.json();
 
-        // Redirect to dashboard
-        router.push("/user/dashboard")
+      if (response.ok) {
+        localStorage.setItem("access_token", data.data.access_token);
+        localStorage.setItem("refresh_token", data.data.refresh_token);
+        router.push("/user/dashboard");
       } else {
-        setError("Invalid email or password. Try user@example.com / password")
+        setError(data.message || "Invalid username or password");
       }
     } catch (err) {
-      setError("An error occurred during sign in")
+      setError("An error occurred while logging in. Please try again!");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -63,9 +63,9 @@ export default function SignInPage() {
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
             <CardDescription className="text-center">
-              Enter your email and password to access your account
+              Enter your username and password to access your account
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -73,23 +73,18 @@ export default function SignInPage() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="username"
+                    type="text"
+                    placeholder="Enter your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -109,35 +104,16 @@ export default function SignInPage() {
                   </Label>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign in"}
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </div>
             </form>
-            <div className="mt-4 relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              <Button variant="outline" className="w-full">
-                <Facebook className="h-4 w-4 mr-2" />
-              </Button>
-              <Button variant="outline" className="w-full">
-                <Github className="h-4 w-4 mr-2" />
-              </Button>
-              <Button variant="outline" className="w-full">
-                <Mail className="h-4 w-4 mr-2" />
-              </Button>
-            </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm">
               Don't have an account?{" "}
               <Link href="/signup" className="text-primary hover:underline">
-                Sign up
+                Sign up now
               </Link>
             </div>
           </CardFooter>
@@ -145,6 +121,5 @@ export default function SignInPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
-
