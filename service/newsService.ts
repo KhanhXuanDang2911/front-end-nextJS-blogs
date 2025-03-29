@@ -2,10 +2,20 @@ import { del, get, patch, post } from "@/util/request";
 
 const api: string = "news/";
 
-export const getNewsForAdminPage = async (limit?:any, offset?: any): Promise<any[]> => {
-    const path: string = limit ? `${api}?limit=${limit}&offset=${offset}` : `${api}`;
+export const getNewsForAdminPage = async (limit?:any, offset?: any, author_id?: any): Promise<any[]> => {
+    let path: string = api;
+    console.log("limit", limit)
+    console.log("offset", offset)
+    console.log("author_id", author_id)
+
+    if (limit && author_id) {
+        path = `${api}?limit=${limit}&offset=${offset}&author_id=${author_id}`;
+    } else if (author_id) {
+        console.log("author_id", author_id)
+        path = `${api}?author_id=${author_id}`;
+    }
     const response: any = await get(path);
-    return limit ? response.data.results : response.data;
+    return limit || author_id ? response.data.results : response.data;
 };
 
 export const getNewsByCategoryId = async (categoryId: any) : Promise<any[]> => {
@@ -14,8 +24,8 @@ export const getNewsByCategoryId = async (categoryId: any) : Promise<any[]> => {
     return response.data;
 };
 
-export const searchNewsByTitle = async (title: string): Promise<any[]> => {
-    const path: string = `${api}?search=${title}`;
+export const searchNewsByTitle = async (title: string, author_id: any): Promise<any[]> => {
+    const path: string = `${api}?search=${title}&author_id=${author_id}`;
     const response: any = await get(path);
     return response.data;
 };

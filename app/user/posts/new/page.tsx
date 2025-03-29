@@ -1,4 +1,4 @@
-import { getCategory, getCategoryForAdminPage } from "@/service/categoryService";
+import { getCategoryForAdminPage } from "@/service/categoryService";
 import NewPostContentPage from "./page-content";
 
 export default async function NewPostPage() {

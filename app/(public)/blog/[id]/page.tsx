@@ -3,6 +3,7 @@ import BlogPostPageContent from "./page-content";
 import { getCommentsByNewsId } from "@/service/commentService";
 import ContentOfComment from "./content-of-comment";
 import { getReactionsOfUserInNews } from "@/service/reactionService";
+import { getUserFromToken } from "@/util/decode_jwt";
 const relatedPosts = [
     {
         id: 2,
@@ -31,10 +32,9 @@ export default async function BlogPostPage({
     const { id } = await params
     const post = await getNewsDetail(Number(id))
     const comments = await getCommentsByNewsId(Number(id))
-    const userId = 8
-    let reactionOfUser = await getReactionsOfUserInNews(id, userId)
-    console.log("reactionOfUser", reactionOfUser)
+    // let reactionOfUser = await getReactionsOfUserInNews(id, userId)
+    // console.log("reactionOfUser", reactionOfUser)
     return <>
-        <BlogPostPageContent reactionOfUser={reactionOfUser} id={id} post={post.data} comments={comments} relatedPosts={relatedPosts}/>
+        <BlogPostPageContent id={id} post={post.data} comments={comments} relatedPosts={relatedPosts}/>
     </>
 }

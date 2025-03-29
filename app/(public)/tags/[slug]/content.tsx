@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge"
 import { Clock, MessageSquare, ThumbsUp, TagIcon } from "lucide-react"
 
 export default function ContentOfTagPage({ tagName, taggedPosts }: { tagName: any, taggedPosts: any }) {
-
     return (
         <div className="flex flex-col min-h-screen">
             <SiteHeader />

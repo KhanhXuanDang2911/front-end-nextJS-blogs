@@ -28,16 +28,33 @@ import {
   ThumbsDown,
 } from "lucide-react"
 import CommentSection from "./comment-section"
-import { addReaction, deleteReaction, updateReaction } from "@/service/reactionService"
+import { addReaction, deleteReaction, getReactionsOfUserInNews, updateReaction } from "@/service/reactionService"
+import { getUserFromToken } from "@/util/decode_jwt"
+import { set } from "date-fns"
 
-export default function BlogPostPageContent({ id, post, comments, relatedPosts, reactionOfUser }: 
-  { post: any, comments: any, relatedPosts: any, id: any, reactionOfUser: any }) {
-  const [activeReaction, setActiveReaction] = useState<any | null>(reactionOfUser ? reactionOfUser : null)
-
+export default function BlogPostPageContent({ id, post, comments, relatedPosts }: 
+  { post: any, comments: any, relatedPosts: any, id: any }) {
+  const [activeReaction, setActiveReaction] = useState<any | null>(null)
+  useEffect(() => {
+    const fetchReaction = async () => {
+      try {
+        const userFromToken = getUserFromToken();
+        const userId = userFromToken.user_id;
+        let reactionOfUser = await getReactionsOfUserInNews(id, userId);
+        setActiveReaction(reactionOfUser || null);
+      } catch (error) {
+        console.error("Error fetching reactions:", error);
+      }
+    };
+  
+    fetchReaction();
+  }, []);
+  
+  const userFromToken = getUserFromToken();
   const handleReaction = async(type: string) => {
     if(activeReaction === null){
       const reaction = {
-        user_id: 8,
+        user_id: userFromToken.user_id,
         news_id: id,
         type: type
       }

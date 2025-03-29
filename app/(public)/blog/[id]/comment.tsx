@@ -7,15 +7,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { addComment } from "@/service/commentService";
 import { deleteComment, updateComment } from "@/service/baseCommentService";
+import { getUserFromToken } from "@/util/decode_jwt";
 
 export default function CommentContent({ comments, idBl }:
     { comments: any[], idBl: any }) {
     const [commentText, setCommentText] = useState("")
 
     const handleReply = async (commentId: number, replyText: string) => {
+        const userFromToken = getUserFromToken();
         if (replyText.trim()) {
             const newSubCmt = {
-                user: 8,
+                user: userFromToken.user_id,
                 content: replyText,
                 parent_comment: commentId
             }
@@ -53,9 +55,10 @@ export default function CommentContent({ comments, idBl }:
     }
 
     const handleComment = async () => {
+        const userFromToken = getUserFromToken();
         if (commentText.trim()) {
             const newSubCmt = {
-                user: 8,
+                user: userFromToken.user_id,
                 content: commentText,
                 article: idBl
             }

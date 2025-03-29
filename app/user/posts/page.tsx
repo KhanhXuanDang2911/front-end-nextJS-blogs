@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog"
 import { deleteNews, getNewsForAdminPage, searchNewsByTitle } from "@/service/newsService"
 import { message, Spin } from "antd"
+import { getUserFromToken } from "@/util/decode_jwt";
 
 export default function UserPostsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -34,6 +35,7 @@ export default function UserPostsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedNews, setSelectedNews] = useState<any>(null)
+  const userId = getUserFromToken().user_id
 
   const handleDelete = (news: any) => {
     setSelectedNews(news)
@@ -42,14 +44,15 @@ export default function UserPostsPage() {
 
   const fetchNews = async () => {
     setIsLoading(true);
-    const res = searchTerm !== "" ? await searchNewsByTitle(searchTerm) : await getNewsForAdminPage()
+    const res = searchTerm !== "" ? await searchNewsByTitle(searchTerm, userId) : await getNewsForAdminPage(10000, 0, userId)
+    console.log(userId)
     console.log(res)
     setNewsList(res)
     setIsLoading(false);
   }
 
   const handleSearch = async () => {
-    const news = await searchNewsByTitle(searchTerm)
+    const news = await searchNewsByTitle(searchTerm, userId)
     setNewsList(news)
   }
 

@@ -1,23 +1,32 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, FileText, MessageSquare, ThumbsUp, Edit, Clock } from "lucide-react"
+import { getUsersDashboardAll } from "@/service/countService"
+import { get } from "http"
+import { getUserFromToken } from "@/util/decode_jwt"
+import { getNewsForAdminPage } from "@/service/newsService"
+import { set } from "date-fns"
 
 
-export default function UserDashboardContentPage({displayedPosts, count}:{displayedPosts: any[], count: any}) {
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null)
+export default function UserDashboardContentPage() {
+  const [count, setCount] = useState<any>({ news_count: 0, comment_count: 0, reaction_count: 0 })
+  const [displayedPosts, setDisplayedPosts] = useState<any[]>([])
 
   useEffect(() => {
-    // Get user data
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      setUser(JSON.parse(userData))
+    const fetchCountAndNews = async () => {
+      const userId = getUserFromToken().user_id
+      const res = await getUsersDashboardAll(userId)
+      const news = await getNewsForAdminPage(3, 0, userId)
+      setCount(res)
+      setDisplayedPosts(news)
     }
+    fetchCountAndNews()
   }, [])
 
   return (

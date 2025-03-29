@@ -10,6 +10,8 @@ export default async function TagPage({
   const { slug } = await params
   const tag = await getCategoryDetail(slug)
   const taggedPosts = await getNewsByCategoryId(slug)
+  console.log("taggedPosts", taggedPosts)
+
   return(
     <ContentOfTagPage tagName={tag.name} taggedPosts={taggedPosts}/>
   )

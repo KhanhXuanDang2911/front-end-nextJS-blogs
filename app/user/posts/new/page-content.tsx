@@ -17,6 +17,7 @@ import { ArrowLeft, ImageIcon, LinkIcon, Save, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { addNews } from "@/service/newsService"
+import { getUserFromToken } from "@/util/decode_jwt"
 
 export default function NewPostContentPage({categories}: {categories: any }) {
   const router = useRouter()
@@ -44,13 +45,14 @@ export default function NewPostContentPage({categories}: {categories: any }) {
         featuredImage,
         status
       })
-
+      
+      const userFromToken = getUserFromToken();
       const post = {
         title: title,
         content: content,
         excerpt: excerpt,
-        category: 4,
-        author_id: 3,
+        category: category,
+        author_id: userFromToken.user_id,
         status: "draft",
       };
       const res = await addNews(post)
