@@ -24,8 +24,8 @@ export const getNewsByCategoryId = async (categoryId: any) : Promise<any[]> => {
     return response.data;
 };
 
-export const searchNewsByTitle = async (title: string, author_id: any): Promise<any[]> => {
-    const path: string = `${api}?search=${title}&author_id=${author_id}`;
+export const searchNewsByTitle = async (title: string, author_id?: any): Promise<any[]> => {
+    const path: string = author_id ? `${api}?search=${title}&author_id=${author_id}`: `${api}?search=${title}`;
     const response: any = await get(path);
     return response.data;
 };

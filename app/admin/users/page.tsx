@@ -60,26 +60,48 @@ export default function UsersPage() {
 
   const handleAddSubmit = async () => {
     try {
-      const user = await formAdd.validateFields();
-      delete user.confirmPassword;
-      const res = await addUser(user)
-      console.log("user", res)
-      if (res.status === 201) {
-        messageApi.open({
-          type: 'success',
-          content: 'Add user success',
-        });
-        formAdd.resetFields();
-        setIsCreateDialogOpen(false)
-        fetchUsers()
+      // const user = await formAdd.validateFields();
+      // delete user.confirmPassword;
+      // const res = await addUser(user)
+      // console.log("user", res)
 
+      // if (res.status === 201) {
+      //   messageApi.open({
+      //     type: 'success',
+      //     content: 'Add user success',
+      //   });
+      //   formAdd.resetFields();
+      //   setIsCreateDialogOpen(false)
+      //   fetchUsers()
+
+      // }
+      // else {
+      //   messageApi.open({
+      //     type: 'error',
+      //     content: res.message,
+      //   })
+      // }
+
+
+      const user = await formAdd.validateFields(); // Lấy dữ liệu từ form
+      delete user.confirmPassword; // Xóa trường không cần thiết
+      delete user.avatar;
+      // Tạo FormData
+      const formData = new FormData();
+      Object.keys(user).forEach((key) => {
+        formData.append(key, user[key]); // Thêm dữ liệu vào FormData
+      });
+  
+      // Nếu có ảnh đại diện, thêm vào FormData
+      if (fileList.length > 0) {
+        formData.append("avatar", fileList[0].originFileObj);
       }
-      else {
-        messageApi.open({
-          type: 'error',
-          content: res.message,
-        })
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
       }
+
+      const res = await addUser(formData)
+  
     } catch (error) {
       console.log("Validation failed:", error);
       messageApi.open({
@@ -171,7 +193,7 @@ export default function UsersPage() {
     }
   }, [selectedUser, formEdit]);
 
-  const [fileList, setFileList] = useState([]);
+  const [fileList, setFileList] = useState<any>([]);
 
   const handleUploadChange = ({ fileList }: any) => {
     setFileList(fileList);

@@ -1,4 +1,4 @@
-import { del, get, patch, post, put } from "@/util/request";
+import { del, get, patch, post, postForFormData, put } from "@/util/request";
 
 const api: string = 'users/';
 
@@ -65,7 +65,7 @@ export const getUsersDetail = async (id: any): Promise<any> => {
 
 export const addUser = async (user: any): Promise<any> => {
     const path: string = `${api}`;
-    const response: any = await post(path, user);
+    const response: any = await postForFormData(path, user);
     return response;
 }
 
