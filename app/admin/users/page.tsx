@@ -25,7 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { addUser, deleteUser, getUsersForAdminPage, searchUserByName, updateUser } from "@/service/userService"
-import { message } from "antd";
+import { message, Button as ButtonANTD } from "antd";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([])
@@ -60,39 +60,15 @@ export default function UsersPage() {
 
   const handleAddSubmit = async () => {
     try {
-      // const user = await formAdd.validateFields();
-      // delete user.confirmPassword;
-      // const res = await addUser(user)
-      // console.log("user", res)
-
-      // if (res.status === 201) {
-      //   messageApi.open({
-      //     type: 'success',
-      //     content: 'Add user success',
-      //   });
-      //   formAdd.resetFields();
-      //   setIsCreateDialogOpen(false)
-      //   fetchUsers()
-
-      // }
-      // else {
-      //   messageApi.open({
-      //     type: 'error',
-      //     content: res.message,
-      //   })
-      // }
-
-
-      const user = await formAdd.validateFields(); // Lấy dữ liệu từ form
-      delete user.confirmPassword; // Xóa trường không cần thiết
+      setLoading(true)
+      const user = await formAdd.validateFields();
+      delete user.confirmPassword;
       delete user.avatar;
-      // Tạo FormData
       const formData = new FormData();
       Object.keys(user).forEach((key) => {
-        formData.append(key, user[key]); // Thêm dữ liệu vào FormData
+        formData.append(key, user[key]);
       });
-  
-      // Nếu có ảnh đại diện, thêm vào FormData
+      formData.append('is_active', 'true');
       if (fileList.length > 0) {
         formData.append("avatar", fileList[0].originFileObj);
       }
@@ -101,7 +77,21 @@ export default function UsersPage() {
       }
 
       const res = await addUser(formData)
-  
+      if (res.status === 201) {
+        messageApi.open({
+          type: 'success',
+          content: 'Add user success',
+        });
+        formAdd.resetFields();
+        setIsCreateDialogOpen(false)
+        fetchUsers()
+      }
+      else {
+        messageApi.open({
+          type: 'error',
+          content: res.message,
+        })
+      }
     } catch (error) {
       console.log("Validation failed:", error);
       messageApi.open({
@@ -109,15 +99,27 @@ export default function UsersPage() {
         content: error + "",
       })
     }
+    setLoading(false)
   };
 
   const handleEditSubmit = async () => {
     try {
+      setLoading(true)
       const user = await formEdit.validateFields();
       delete user.avatar;
-      console.log("user", user)
-      const res = await updateUser(user)
-      console.log("res", res)
+      const formData = new FormData();
+      Object.keys(user).forEach((key) => {
+        formData.append(key, user[key]);
+      });
+      if (fileList.length > 0) {
+        if (fileList[0].originFileObj) {
+          formData.append("avatar", fileList[0].originFileObj);
+        }
+      }
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      const res = await updateUser(formData)
       if (res.status === 204) {
         messageApi.open({
           type: 'success',
@@ -139,6 +141,7 @@ export default function UsersPage() {
         content: error + "",
       })
     }
+    setLoading(false)
   };
 
   const handleDeleteSubmit = async () => {
@@ -190,8 +193,23 @@ export default function UsersPage() {
         avatar: selectedUser.avatar,
         is_active: selectedUser.is_active
       });
+      // setFileList(selectedUser.avatar)
     }
   }, [selectedUser, formEdit]);
+
+  useEffect(() => {
+    if (selectedUser && selectedUser?.avatar) {
+      setFileList([
+        {
+          uid: '-1',
+          name: 'your avatar!',
+          status: 'done',
+          url: "https://res.cloudinary.com/dbqoymyi8/" + selectedUser.avatar,
+        },
+      ])
+    }
+  }, [selectedUser]);
+
 
   const [fileList, setFileList] = useState<any>([]);
 
@@ -247,7 +265,7 @@ export default function UsersPage() {
             {users.map((user) => (
               <TableRow key={user.id} className="hover:bg-muted/30">
                 <TableCell>
-                  <img src={user.avatar} alt="Avatar" className="h-10 w-10 rounded-full" />
+                  <img src={"https://res.cloudinary.com/dbqoymyi8/" + user.avatar} alt="Avatar" className="h-10 w-10 rounded-full" />
                 </TableCell>
                 <TableCell className="font-medium">{user.username}</TableCell>
                 <TableCell>{user.name}</TableCell>
@@ -413,7 +431,6 @@ export default function UsersPage() {
               <Upload
                 beforeUpload={() => false} // Không upload ngay lập tức
                 listType="picture"
-                fileList={fileList}
                 onChange={handleUploadChange}
                 maxCount={1}
                 accept="image/*" // Chỉ cho phép chọn ảnh
@@ -422,24 +439,24 @@ export default function UsersPage() {
               </Upload>
             </Form.Item>
             <DialogFooter className="flex space-x-2 justify-end">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <ButtonANTD onClick={() => setIsCreateDialogOpen(false)}>
                 Cancel
-              </Button>
-              <Button
-                type="submit"
+              </ButtonANTD>
+
+              <ButtonANTD
+                loading={loading}
+                type="primary"
                 onClick={handleAddSubmit}
                 disabled={loading}
-                className="bg-gradient-to-r from-brand-blue to-brand-purple text-white"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating...
                   </>
                 ) : (
                   "Save User"
                 )}
-              </Button>
+              </ButtonANTD>
             </DialogFooter>
           </Form>
 
@@ -467,9 +484,9 @@ export default function UsersPage() {
 
                 label="Id"
                 name="id"
-                rules={[{ required: true}]}
+                rules={[{ required: true }]}
               >
-                <Input readOnly/>
+                <Input readOnly />
               </Form.Item>
 
               {/* Username */}
@@ -478,7 +495,7 @@ export default function UsersPage() {
                 name="username"
                 rules={[{ required: true }]}
               >
-                <Input readOnly/>
+                <Input readOnly />
               </Form.Item>
 
               {/* Status */}
@@ -488,7 +505,7 @@ export default function UsersPage() {
                 rules={[{ required: true, message: "Please select a status!" }]}
               >
                 <Select placeholder="Select role">
-                <Select.Option value={true}>Active</Select.Option>
+                  <Select.Option value={true}>Active</Select.Option>
                   <Select.Option value={false}>Inactive</Select.Option>
                 </Select>
               </Form.Item>
@@ -538,40 +555,37 @@ export default function UsersPage() {
                 <Input maxLength={11} placeholder="Enter phone number..." />
               </Form.Item>
 
-              {/* Avatar Upload */}
-              {selectedUser.avatar ? '' : 
-              
-              <Form.Item label="Avatar" name="avatar">
+              <Form.Item label={`${selectedUser.avatar ? 'Update Avatar' : 'Add Avatar'}`} name="avatar">
                 <Upload
-                  beforeUpload={() => false} // Không upload ngay lập tức
+                  beforeUpload={() => false} 
                   listType="picture"
                   fileList={fileList}
                   onChange={handleUploadChange}
                   maxCount={1}
-                  accept="image/*" // Chỉ cho phép chọn ảnh
+                  accept="image/*" 
                 >
                   <ButtonAntd icon={<UploadOutlined />}>Upload Avatar</ButtonAntd>
                 </Upload>
-              </Form.Item>}
+              </Form.Item>
               <DialogFooter className="flex space-x-2 justify-end">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <ButtonANTD onClick={() => setIsEditDialogOpen(false)}>
                   Cancel
-                </Button>
-                <Button
-                  type="submit"
+                </ButtonANTD>
+                <ButtonANTD
+                  type="primary"
+                  loading={loading}
                   onClick={handleEditSubmit}
                   disabled={loading}
                   className="bg-gradient-to-r from-brand-blue to-brand-purple text-white"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Edit...
                     </>
                   ) : (
                     "Save User"
                   )}
-                </Button>
+                </ButtonANTD>
               </DialogFooter>
             </Form>
           )}

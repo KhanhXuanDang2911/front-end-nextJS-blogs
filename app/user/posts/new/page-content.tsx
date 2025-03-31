@@ -35,7 +35,6 @@ export default function NewPostContentPage({categories}: {categories: any }) {
     setIsSubmitting(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       console.log("Creating post:", {
         title,
@@ -46,14 +45,15 @@ export default function NewPostContentPage({categories}: {categories: any }) {
         status
       })
       
-      const userFromToken = getUserFromToken();
+      // const userFromToken = getUserFromToken();
       const post = {
         title: title,
         content: content,
         excerpt: excerpt,
         category: category,
-        author_id: userFromToken.user_id,
-        status: "draft",
+        // author_id: userFromToken.user_id,
+        author_id: 13,
+        status: status,
       };
       const res = await addNews(post)
       if (res.status === 201) {

@@ -1,4 +1,4 @@
-import { del, get, patch, post, postForFormData, put } from "@/util/request";
+import { del, get, patch, patchForFormData, post, postForFormData, put } from "@/util/request";
 
 const api: string = 'users/';
 
@@ -70,8 +70,8 @@ export const addUser = async (user: any): Promise<any> => {
 }
 
 export const updateUser = async (user: any): Promise<any> => {
-    const path: string = `${api}${user.id}/`;
-    const response: any = await patch(path, user);
+    const path: string = `${api}${user.get('id')}/`;
+    const response: any = await patchForFormData(path, user);
     return response;
 }
 

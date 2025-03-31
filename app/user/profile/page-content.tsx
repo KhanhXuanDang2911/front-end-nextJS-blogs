@@ -164,7 +164,7 @@ export default function ProfilePageContent({ usersEdit }: { usersEdit: any }) {
                 </Form.Item>
 
                 {/* Avatar Upload */}
-                {usersEdit.avatar ? '' :
+                {usersEdit?.avatar ? '' :
 
                   <Form.Item label="Avatar" name="avatar">
                     <Upload
