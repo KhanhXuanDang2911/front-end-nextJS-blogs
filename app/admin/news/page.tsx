@@ -1,6 +1,6 @@
 "use client"
-
-import { useState } from "react"
+import { LoadingOutlined, UploadOutlined } from '@ant-design/icons';
+import { useEffect, useState, useRef } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   DropdownMenu,
@@ -15,463 +15,594 @@ import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { ChevronLeft, ChevronRight, Eye, MoreHorizontal, Plus, Search, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Search, FileText, Upload, Check } from "lucide-react"
+import { message, Spin, Modal, Tabs } from "antd";
+import { addNews, deleteNews, getNewsForAdminPage, searchNewsByTitle } from "@/service/newsService"
+import Link from 'next/link';
+import { getUserId } from "@/utils/auth";
 
-// Sample categories
-const categories = ["Technology", "Business", "Sports", "Entertainment", "Politics", "Health", "Science", "Education"]
+interface NewsItem {
+  id?: number;
+  title: string;
+  content: string;
+  excerpt: string;
+  image: string;
+  category: number;
+  status: string;
+  published_at?: string;
+  author_id?: number;
+  selected?: boolean;
+}
 
-// Sample data
-const news = [
-  {
-    id: 1,
-    title: "New Technology Breakthrough",
-    category: "Technology",
-    author: "John Doe",
-    status: "Published",
-    publishedAt: "2023-06-15",
-    views: 1245,
-  },
-  {
-    id: 2,
-    title: "Global Economic Summit Results",
-    category: "Business",
-    author: "Jane Smith",
-    status: "Published",
-    publishedAt: "2023-06-20",
-    views: 980,
-  },
-  {
-    id: 3,
-    title: "Sports Championship Finals",
-    category: "Sports",
-    author: "Bob Johnson",
-    status: "Draft",
-    publishedAt: null,
-    views: 0,
-  },
-  {
-    id: 4,
-    title: "New Entertainment Series Launch",
-    category: "Entertainment",
-    author: "Alice Brown",
-    status: "Published",
-    publishedAt: "2023-07-05",
-    views: 2340,
-  },
-  {
-    id: 5,
-    title: "Political Developments in Europe",
-    category: "Politics",
-    author: "Charlie Wilson",
-    status: "Under Review",
-    publishedAt: null,
-    views: 0,
-  },
-]
-
-export default function NewsPage() {
+export default function NewsManagementPage() {
+  const [newsList, setNewsList] = useState<any[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
   const [searchTerm, setSearchTerm] = useState("")
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedNews, setSelectedNews] = useState<any>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [importedNews, setImportedNews] = useState<NewsItem[]>([])
+  const [previewNews, setPreviewNews] = useState<NewsItem | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [importSearchTerm, setImportSearchTerm] = useState("")
+  const [selectAll, setSelectAll] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importResult, setImportResult] = useState<any>(null);
+  const [isImportResultOpen, setIsImportResultOpen] = useState(false);
 
-  // Form states for create/edit
-  const [formData, setFormData] = useState({
-    title: "",
-    category: "technology",
-    author: "",
-    content: "",
-    status: "draft",
-  })
-
-  const filteredNews = news.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.author.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  const handleEdit = (item: any) => {
-    setSelectedNews(item)
-    setFormData({
-      title: item.title,
-      category: item.category.toLowerCase(),
-      author: item.author,
-      content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      status: item.status.toLowerCase().replace(" ", "-"),
-    })
-    setIsEditDialogOpen(true)
+  const handleSearch = async () => {
+    const news = await searchNewsByTitle(searchTerm)
+    setNewsList(news)
   }
 
-  const handleDelete = (item: any) => {
-    setSelectedNews(item)
+  const handleDelete = (news: any) => {
+    setSelectedNews(news)
     setIsDeleteDialogOpen(true)
   }
 
-  const handleCreateArticle = () => {
-    setIsSubmitting(true)
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Creating article:", formData)
-      setIsSubmitting(false)
-      setIsCreateDialogOpen(false)
-      // Reset form
-      setFormData({
-        title: "",
-        category: "technology",
-        author: "",
-        content: "",
-        status: "draft",
+  const handleDeleteSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const res = await deleteNews(selectedNews.id)
+      if (res.status === 205) {
+        messageApi.open({
+          type: 'success',
+          content: `Delete news ${selectedNews.id} successful`,
+        });
+        setIsDeleteDialogOpen(false)
+        fetchNews()
+      } else if (res.status == 500) {
+        messageApi.open({
+          type: 'error',
+          content: res.message,
+        })
+      }
+    } catch (error) {
+      messageApi.open({
+        type: 'error',
+        content: error + "",
       })
-    }, 1000)
+    }
+    setIsLoading(false);
   }
 
-  const handleUpdateArticle = () => {
-    setIsSubmitting(true)
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Updating article:", { id: selectedNews.id, ...formData })
-      setIsSubmitting(false)
-      setIsEditDialogOpen(false)
-    }, 1000)
+  const fetchNews = async () => {
+    const res = searchTerm !== "" ? await searchNewsByTitle(searchTerm) : await getNewsForAdminPage()
+    setNewsList(res)
   }
 
-  const handleDeleteArticle = () => {
-    setIsSubmitting(true)
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Deleting article:", selectedNews)
-      setIsSubmitting(false)
-      setIsDeleteDialogOpen(false)
-    }, 1000)
+  const handleImportDialogOpen = () => {
+    setIsImportDialogOpen(true);
   }
 
-  const openCreateDialog = () => {
-    setFormData({
-      title: "",
-      category: "technology",
-      author: "",
-      content: "",
-      status: "draft",
-    })
-    setIsCreateDialogOpen(true)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        // Add published_at and author_id to each item
+        const timestamp = new Date().toISOString();
+        const authorId = getUserId();
+
+        const processedNews = json.map((item: NewsItem) => ({
+          ...item,
+          published_at: timestamp,
+          author_id: authorId,
+          selected: true // Default all items as selected
+        }));
+
+        setImportedNews(processedNews);
+        setSelectAll(true);
+        messageApi.success(`Successfully parsed ${processedNews.length} news items`);
+      } catch (error) {
+        messageApi.error('Failed to parse JSON file. Please check the format and try again.');
+      }
+    };
+    reader.readAsText(file);
   }
+
+  const handleImportSubmit = async () => {
+    const selectedItems = importedNews.filter(item => item.selected);
+
+    if (selectedItems.length === 0) {
+      messageApi.warning('Please select at least one article to import');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Prepare the data for the API - remove the 'selected' property from each item
+      const articlesToImport = selectedItems.map(({ selected, ...rest }) => rest);
+
+      // Call the API with the array of articles
+      const response = await fetch('http://localhost:8000/api/news/import/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(articlesToImport)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Show success message
+        messageApi.success(result.message || `Successfully imported ${result.data.total_imported} articles`);
+
+        // If there were partial errors, show warning
+        if (result.status === 207 && result.data.total_failure > 0) {
+          messageApi.warning(`${result.data.total_failure} articles failed to import`);
+        }
+
+        // Show import summary dialog with details
+        setImportResult(result.data);
+        setIsImportResultOpen(true);
+
+        // Close the import dialog
+        setIsImportDialogOpen(false);
+
+        // Refresh the news list
+        fetchNews();
+      } else {
+        // Show error message
+        messageApi.error(result.message || 'Failed to import articles');
+      }
+    } catch (error) {
+      console.error("Error importing articles:", error);
+      messageApi.error('Failed to import articles: Network error');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handlePreviewNews = (news: NewsItem) => {
+    setPreviewNews(news);
+    setIsPreviewOpen(true);
+  }
+
+  // Prevent modal closing propagation
+  const handleImportDialogOpenChange = (open: boolean) => {
+    // Only allow closing if not viewing a preview
+    if (!isPreviewOpen || open) {
+      setIsImportDialogOpen(open);
+    }
+  }
+
+  // Handle preview modal closing separately
+  const handlePreviewClose = () => {
+    setIsPreviewOpen(false);
+  }
+
+  const handleSelectArticle = (index: number, checked: boolean) => {
+    const updatedNews = [...importedNews];
+    updatedNews[index].selected = checked;
+    setImportedNews(updatedNews);
+
+    // Update selectAll state based on whether all items are now selected
+    setSelectAll(updatedNews.every(item => item.selected));
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    setSelectAll(checked);
+    const updatedNews = importedNews.map(item => ({
+      ...item,
+      selected: checked
+    }));
+    setImportedNews(updatedNews);
+  }
+
+  const getFilteredImportedNews = () => {
+    if (!importSearchTerm) return importedNews;
+    return importedNews.filter(item =>
+      item.title.toLowerCase().includes(importSearchTerm.toLowerCase())
+    );
+  }
+
+  const getSelectedItemsJSON = () => {
+    const selectedItems = importedNews
+      .filter(item => item.selected)
+      .map(({ selected, ...rest }) => rest); // Remove the selected property
+
+    return JSON.stringify(selectedItems, null, 2);
+  }
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchNews()
+    setIsLoading(false);
+  }, []);
 
   return (
     <div className="p-8">
+      {contextHolder}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold gradient-text">News Articles</h1>
-        <Button onClick={openCreateDialog} className="bg-gradient-to-r from-brand-blue to-brand-purple text-white">
-          <Plus className="mr-2 h-4 w-4" /> Add Article
-        </Button>
-      </div>
-
-      <div className="flex items-center py-4">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search articles..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8 border-brand-blue/20 focus-visible:ring-brand-blue"
-          />
+        <h1 className="text-3xl font-bold">News Management</h1>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className='flex items-center gap-1'
+            onClick={handleImportDialogOpen}
+          >
+            <Upload className="mr-2 h-4 w-4" /> <span>Import News</span>
+          </Button>
+          <Link href={'/user/posts/new'}>
+            <Button className='flex items-center gap-1'>
+              <Plus className="mr-2 h-4 w-4" /> <span>Add News</span>
+            </Button>
+          </Link>
         </div>
       </div>
 
-      <div className="rounded-md border shadow-sm">
+      <div className="flex items-center py-4 gap-5">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search news by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+          />
+        </div>
+        <Button onClick={handleSearch}>Search</Button>
+      </div>
+
+      <div className="rounded-md border">
         <Table>
-          <TableHeader className="bg-muted/50">
+          <TableHeader>
             <TableRow>
+              <TableHead>Id</TableHead>
               <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
+              <TableHead>Excerpt</TableHead>
               <TableHead>Author</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Published Date</TableHead>
-              <TableHead>Views</TableHead>
+              <TableHead>Image</TableHead>
+              <TableHead>Published At</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredNews.map((item) => (
-              <TableRow key={item.id} className="hover:bg-muted/30">
-                <TableCell className="font-medium">{item.title}</TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell>{item.author}</TableCell>
-                <TableCell>
-                  <div
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      item.status === "Published"
-                        ? "bg-green-100 text-green-800"
-                        : item.status === "Draft"
-                          ? "bg-gray-100 text-gray-800"
-                          : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {item.status}
-                  </div>
-                </TableCell>
-                <TableCell>{item.publishedAt || "—"}</TableCell>
-                <TableCell>{item.views}</TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <Eye className="mr-2 h-4 w-4" /> View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEdit(item)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDelete(item)} className="text-red-600">
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-            {filteredNews.length === 0 && (
+            {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  No articles found.
+                <TableCell colSpan={9} className="text-center">
+                  <Spin indicator={<LoadingOutlined spin />} size="large" />
                 </TableCell>
               </TableRow>
+            ) : (
+              newsList.map((news) => (
+                <TableRow key={news.id}>
+                  <TableCell className="font-medium">{news.id}</TableCell>
+                  <TableCell className="font-medium">{news.title}</TableCell>
+                  <TableCell className="font-normal">{news.excerpt}</TableCell>
+                  <TableCell className="font-normal">{news.author_id}</TableCell>
+                  <TableCell className="font-normal">{news.status}</TableCell>
+                  <TableCell className="font-normal">
+                    {news.image ? (
+                      <img
+                        src={news.image.includes('http') ?
+                          news.image.replace('image/upload/', '') :
+                          "https://res.cloudinary.com/dbqoymyi8/" + news.image
+                        }
+                        alt="News Image"
+                        className="w-16 h-16 object-cover"
+                      />
+                    ) : 'No Image'}
+                  </TableCell>
+                  <TableCell className="font-normal">
+                    {news.published_at ?
+                      new Date(news.published_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })
+                      : 'Not Published'
+                    }
+                  </TableCell>
+                  <TableCell className="font-normal">{news.category}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <Link href={`/blog/${news.id}`} target='_blank'>
+                          <DropdownMenuItem>View</DropdownMenuItem>
+                        </Link>
+                        <Link href={`/user/posts/${news.id}/edit`} target='_blank'>
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                        </Link>
+                        <DropdownMenuItem className="text-red-600" onClick={(e) => handleDelete(news)}>Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button variant="outline" size="sm">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Previous
-        </Button>
-        <Button variant="outline" size="sm">
-          Next
-          <ChevronRight className="h-4 w-4 ml-1" />
-        </Button>
-      </div>
-
-      {/* Create News Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+      {/* Import News Dialog */}
+      <Dialog open={isImportDialogOpen} onOpenChange={handleImportDialogOpenChange}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="text-xl">Add New Article</DialogTitle>
+            <DialogTitle>Import News from JSON File</DialogTitle>
             <DialogDescription>
-              Create a new news article. Fill in the details below and click save when you're done.
+              Upload a JSON file containing news articles. Each article should have title, content, excerpt, image, category, and status fields.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-6 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right font-medium">
-                Title
-              </Label>
-              <Input
-                id="title"
-                className="col-span-3"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Enter article title"
+
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <div className="flex items-center justify-center border-2 border-dashed border-gray-300 p-4 rounded-md mb-4">
+              <input
+                type="file"
+                accept=".json"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
               />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right font-medium">
-                Category
-              </Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => fileInputRef.current?.click()}
               >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category.toLowerCase()}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <UploadOutlined className="mr-2" /> Select JSON File
+              </Button>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="author" className="text-right font-medium">
-                Author
-              </Label>
-              <Input
-                id="author"
-                className="col-span-3"
-                value={formData.author}
-                onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                placeholder="Enter author name"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="content" className="text-right pt-2 font-medium">
-                Content
-              </Label>
-              <Textarea
-                id="content"
-                className="col-span-3"
-                rows={8}
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Enter article content"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right font-medium">
-                Status
-              </Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="under-review">Under Review</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
+            {importedNews.length > 0 && (
+              <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="select-all"
+                      checked={selectAll}
+                      onCheckedChange={handleSelectAll}
+                    />
+                    <Label htmlFor="select-all" className="text-sm font-semibold">
+                      Select All Articles ({importedNews.filter(item => item.selected).length}/{importedNews.length})
+                    </Label>
+                  </div>
+
+                  <div className="relative w-full max-w-[200px]">
+                    <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search articles..."
+                      value={importSearchTerm}
+                      onChange={(e) => setImportSearchTerm(e.target.value)}
+                      className="pl-8 h-8 text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="border rounded-md mb-4 flex-1 overflow-hidden flex flex-col">
+                  <div className="flex-1 overflow-y-auto max-h-[250px]">
+                    {getFilteredImportedNews().map((news, index) => {
+                      const actualIndex = importedNews.findIndex(item => item.title === news.title);
+                      return (
+                        <div key={index} className="p-2 hover:bg-gray-100 border-b flex items-center">
+                          <Checkbox
+                            checked={news.selected}
+                            onCheckedChange={(checked) => handleSelectArticle(actualIndex, !!checked)}
+                            className="mr-3"
+                            id={`article-${index}`}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <div
+                            className="flex-1 cursor-pointer flex justify-between items-center overflow-hidden"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePreviewNews(news);
+                            }}
+                          >
+                            <span className="font-medium truncate max-w-[70%]">{news.title}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePreviewNews(news);
+                              }}
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <Tabs
+                  defaultActiveKey="1"
+                  items={[
+                    {
+                      key: '1',
+                      label: 'Preview Selected JSON',
+                      children: (
+                        <pre className="bg-gray-100 p-3 rounded-md overflow-auto text-xs max-h-[150px]">
+                          {getSelectedItemsJSON()}
+                        </pre>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+            )}
           </div>
-          <DialogFooter className="flex space-x-2 justify-end">
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => !isPreviewOpen && setIsImportDialogOpen(false)}>
               Cancel
             </Button>
             <Button
-              type="submit"
-              onClick={handleCreateArticle}
-              disabled={isSubmitting}
-              className="bg-gradient-to-r from-brand-blue to-brand-purple text-white"
+              onClick={handleImportSubmit}
+              disabled={!importedNews.some(item => item.selected) || isLoading}
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                "Save Article"
-              )}
+              {isLoading ? 'Importing...' : 'Import Articles'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Edit News Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      {/* News Preview Modal - Must be completely separate from Import dialog */}
+      <Modal
+        title="Article Preview"
+        open={isPreviewOpen}
+        onCancel={handlePreviewClose}
+        footer={[
+          <Button key="close" onClick={handlePreviewClose}>
+            Close
+          </Button>
+        ]}
+        width={800}
+        destroyOnClose={false}
+        maskClosable={true}
+        style={{ zIndex: 1051 }}
+        getContainer={() => document.body}
+      >
+        {previewNews && (
+          <div className="preview-container p-4">
+            <Tabs
+              defaultActiveKey="1"
+              items={[
+                {
+                  key: '1',
+                  label: 'Preview',
+                  children: (
+                    <div className="preview-content">
+                      <h1 className="text-2xl font-bold mb-4">{previewNews.title}</h1>
+                      <div className="text-gray-500 mb-4">{previewNews.excerpt}</div>
+                      {previewNews.image && (
+                        <div className="mb-4">
+                          <img
+                            src={previewNews.image.includes('http') ?
+                              previewNews.image.replace('image/upload/', '') :
+                              "https://res.cloudinary.com/dbqoymyi8/" + previewNews.image
+                            }
+                            alt={previewNews.title}
+                            className="max-w-full h-auto"
+                          />
+                        </div>
+                      )}
+                      <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: previewNews.content }} />
+                    </div>
+                  ),
+                },
+                {
+                  key: '2',
+                  label: 'Raw Data',
+                  children: (
+                    <pre className="bg-gray-100 p-4 rounded-md overflow-auto">
+                      {JSON.stringify(previewNews, null, 2)}
+                    </pre>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        )}
+      </Modal>
+
+      {/* Import Results Dialog */}
+      <Dialog open={isImportResultOpen} onOpenChange={setIsImportResultOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle className="text-xl">Edit Article</DialogTitle>
-            <DialogDescription>Make changes to the news article. Click save when you're done.</DialogDescription>
+            <DialogTitle>Import Results</DialogTitle>
+            <DialogDescription>
+              {importResult && `Successfully imported ${importResult.total_imported || importResult.total_success || 0} articles`}
+            </DialogDescription>
           </DialogHeader>
-          {selectedNews && (
-            <div className="grid gap-6 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-title" className="text-right font-medium">
-                  Title
-                </Label>
-                <Input
-                  id="edit-title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="col-span-3"
-                />
+
+          <div className="py-4 space-y-4">
+            {importResult && importResult.imported && importResult.imported.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Successfully Imported:</h3>
+                <div className="max-h-[200px] overflow-y-auto border rounded-md">
+                  {importResult.imported.map((item: any, idx: number) => (
+                    <div key={idx} className="p-2 hover:bg-gray-100 border-b flex items-center">
+                      <div className="flex-1">
+                        <div className="font-medium">{item.title}</div>
+                        <div className="text-sm text-green-600">ID: {item.id}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-category" className="text-right font-medium">
-                  Category
-                </Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category.toLowerCase()}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            )}
+
+            {importResult && importResult.errors && importResult.errors.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold mb-2 text-red-600">Failed to Import:</h3>
+                <div className="max-h-[200px] overflow-y-auto border rounded-md border-red-200">
+                  {importResult.errors.map((item: any, idx: number) => (
+                    <div key={idx} className="p-2 hover:bg-red-50 border-b">
+                      <div className="font-medium">{item.title || `Article at index ${item.index}`}</div>
+                      <div className="text-sm text-red-600">
+                        {typeof item.error === 'string'
+                          ? item.error
+                          : Object.entries(item.error || {}).map(([field, msgs]) => (
+                            <div key={field}>
+                              <span className="font-semibold">{field}:</span> {Array.isArray(msgs) ? msgs.join(', ') : String(msgs)}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-author" className="text-right font-medium">
-                  Author
-                </Label>
-                <Input
-                  id="edit-author"
-                  value={formData.author}
-                  onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label htmlFor="edit-content" className="text-right pt-2 font-medium">
-                  Content
-                </Label>
-                <Textarea
-                  id="edit-content"
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="col-span-3"
-                  rows={8}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-status" className="text-right font-medium">
-                  Status
-                </Label>
-                <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="under-review">Under Review</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-          <DialogFooter className="flex space-x-2 justify-end">
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              onClick={handleUpdateArticle}
-              disabled={isSubmitting}
-              className="bg-gradient-to-r from-brand-blue to-brand-purple text-white"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button onClick={() => setIsImportResultOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -481,45 +612,23 @@ export default function NewsPage() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-xl text-red-600">Confirm Deletion</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this article? This action cannot be undone.
-            </DialogDescription>
+            <DialogTitle className="text-red-600">Confirm Deletion</DialogTitle>
           </DialogHeader>
           {selectedNews && (
-            <div className="py-4 space-y-2">
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium">Title:</span>
-                <span>{selectedNews.title}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium">Category:</span>
-                <span>{selectedNews.category}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium">Author:</span>
-                <span>{selectedNews.author}</span>
-              </div>
+            <div className="py-4">
+              <p className="italic">
+                Are you sure you want to delete the news titled "{selectedNews.title}"?
+              </p>
             </div>
           )}
-          <DialogFooter className="flex space-x-2 justify-end">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteArticle} disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                "Delete"
-              )}
-            </Button>
+            <Button variant="destructive" onClick={handleDeleteSubmit}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   )
 }
-

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
@@ -11,191 +11,25 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, MessageSquare, ThumbsUp, Search, TagIcon, ArrowRight, Sparkles } from "lucide-react"
-
-// Sample blog data
-const allPosts = [
-  {
-    id: 1,
-    title: "The Future of Artificial Intelligence in Healthcare",
-    excerpt: "Exploring how AI is revolutionizing medical diagnostics, treatment plans, and patient care.",
-    category: "Technology",
-    author: "Dr. Jane Smith",
-    publishedAt: "2023-07-15",
-    readTime: "8 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 24,
-    reactions: 156,
-    tags: ["AI", "Healthcare", "Technology", "Future"],
-  },
-  {
-    id: 2,
-    title: "Global Economic Trends to Watch in 2023",
-    excerpt: "Analysis of emerging economic patterns and their potential impact on markets worldwide.",
-    category: "Business",
-    author: "Michael Johnson",
-    publishedAt: "2023-07-12",
-    readTime: "6 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 18,
-    reactions: 92,
-    tags: ["Economics", "Business", "Global", "Trends"],
-  },
-  {
-    id: 3,
-    title: "Championship Finals: A Historic Showdown",
-    excerpt: "Recap of the thrilling final match that kept fans on the edge of their seats.",
-    category: "Sports",
-    author: "Sarah Williams",
-    publishedAt: "2023-07-10",
-    readTime: "5 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 32,
-    reactions: 215,
-    tags: ["Sports", "Championship", "Finals"],
-  },
-  {
-    id: 4,
-    title: "New Streaming Series Breaking All Records",
-    excerpt: "How this surprise hit became the most-watched show in streaming history.",
-    category: "Entertainment",
-    author: "Robert Chen",
-    publishedAt: "2023-07-08",
-    readTime: "4 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 45,
-    reactions: 278,
-    tags: ["Entertainment", "Streaming", "TV", "Records"],
-  },
-  {
-    id: 5,
-    title: "10 Tech Gadgets That Will Define 2023",
-    excerpt: "A comprehensive look at the most innovative tech gadgets that are shaping this year.",
-    category: "Technology",
-    author: "Michael Johnson",
-    publishedAt: "2023-06-30",
-    readTime: "6 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 64,
-    reactions: 342,
-    tags: ["Technology", "Gadgets", "Innovation", "2023"],
-  },
-  {
-    id: 6,
-    title: "Understanding the Housing Market Shift",
-    excerpt: "A detailed analysis of the current housing market trends and future predictions.",
-    category: "Business",
-    author: "Emily Rodriguez",
-    publishedAt: "2023-06-28",
-    readTime: "7 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 37,
-    reactions: 185,
-    tags: ["Housing", "Market", "Business", "Real Estate"],
-  },
-  {
-    id: 7,
-    title: "The Science Behind Sustainable Eating",
-    excerpt: "Understanding the environmental and health benefits of sustainable food choices.",
-    category: "Health",
-    author: "Lisa Thompson",
-    publishedAt: "2023-06-25",
-    readTime: "8 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 29,
-    reactions: 203,
-    tags: ["Health", "Sustainability", "Food", "Environment"],
-  },
-  {
-    id: 8,
-    title: "Political Reforms: What They Mean for Citizens",
-    excerpt: "Breaking down the latest political reforms and their impact on everyday life.",
-    category: "Politics",
-    author: "David Wilson",
-    publishedAt: "2023-06-22",
-    readTime: "9 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 56,
-    reactions: 271,
-    tags: ["Politics", "Reforms", "Government", "Citizens"],
-  },
-  {
-    id: 9,
-    title: "Understanding Blockchain Beyond Cryptocurrency",
-    excerpt: "How blockchain technology is being applied across industries beyond just digital currencies.",
-    category: "Technology",
-    author: "Robert Chen",
-    publishedAt: "2023-06-15",
-    readTime: "10 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 37,
-    reactions: 215,
-    tags: ["Blockchain", "Technology", "Cryptocurrency", "Innovation"],
-  },
-  {
-    id: 10,
-    title: "The Rise of Quantum Computing",
-    excerpt: "Exploring the potential and challenges of quantum computing technology.",
-    category: "Technology",
-    author: "Sarah Williams",
-    publishedAt: "2023-05-28",
-    readTime: "12 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 42,
-    reactions: 189,
-    tags: ["Quantum", "Computing", "Technology", "Future"],
-  },
-  {
-    id: 11,
-    title: "Mental Health in the Digital Age",
-    excerpt: "How technology is both helping and hurting our mental wellbeing.",
-    category: "Health",
-    author: "Dr. Emily Chen",
-    publishedAt: "2023-05-20",
-    readTime: "9 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 78,
-    reactions: 324,
-    tags: ["Mental Health", "Digital", "Wellbeing", "Technology"],
-  },
-  {
-    id: 12,
-    title: "The Future of Remote Work",
-    excerpt: "Predictions for how remote work will evolve in the coming years.",
-    category: "Business",
-    author: "James Wilson",
-    publishedAt: "2023-05-15",
-    readTime: "7 min read",
-    image: "/placeholder.svg?height=400&width=600",
-    comments: 53,
-    reactions: 217,
-    tags: ["Remote Work", "Business", "Future", "Workplace"],
-  },
-]
-
-// Popular tags
-const popularTags = [
-  { name: "Technology", count: 42 },
-  { name: "Business", count: 28 },
-  { name: "Health", count: 24 },
-  { name: "AI", count: 35 },
-  { name: "Future", count: 29 },
-]
+import { getNewsForAdminPage } from "@/service/newsService"
+import { getCategoryForAdminPage } from "@/service/categoryService"
+import './style.css'
+import Image from "next/image"
+import { format } from "date-fns"
 
 export default function HomePage() {
   const [visiblePosts, setVisiblePosts] = useState(6)
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [allPosts, setAllPosts] = useState<any[]>([])
+  const [popularTags, setPopularTags] = useState<any[]>([])
 
   const filteredPosts = searchQuery
     ? allPosts.filter(
-        (post) =>
-          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
-      )
+      (post) =>
+        post.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : allPosts
 
   const displayedPosts = isSearching ? filteredPosts : filteredPosts.slice(0, visiblePosts)
@@ -219,38 +53,64 @@ export default function HomePage() {
     setIsSearching(false)
   }
 
+  const fetchNews = async () => {
+    setIsLoading(true);
+    const res = await getNewsForAdminPage()
+    setAllPosts(res)
+    setIsLoading(false);
+  }
+
+  const fetchCategoryPopu = async () => {
+    setIsLoading(true);
+    const res = await getCategoryForAdminPage(5, '-news_count')
+    setPopularTags(res)
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    fetchNews()
+    fetchCategoryPopu()
+  }, []);
+
   return (
+
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 animated-bg text-white">
+        {/* <section className="w-full py-12 md:py-24 lg:py-32 animated-bg text-white">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-start gap-4 md:gap-8 max-w-3xl">
-              <div className="inline-flex items-center justify-center p-2 bg-white bg-opacity-20 rounded-full mb-2 animate-bounce-in">
-                <Sparkles className="h-5 w-5 mr-2" />
-                <span className="text-sm font-medium">Discover Amazing Content</span>
-              </div>
-              <h1 className="text-5xl font-bold tracking-tight lg:text-7xl">
-                Hello <span className="inline-block animate-wave">👋</span>, we are NewsVibe.
-              </h1>
-              <h2 className="text-5xl font-bold tracking-tight lg:text-7xl">See our thoughts, stories, and ideas.</h2>
-              <p className="max-w-[700px] text-lg text-white/80 md:text-xl">
-                Subscribe to our email newsletter and be the first to receive exciting updates, exclusive content, and
-                special offers straight to your inbox.
-              </p>
-              <div className="flex w-full max-w-md items-center space-x-2">
-                <Input
-                  type="email"
-                  placeholder="Email Address"
-                  className="rounded-full bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30"
-                />
-                <Button type="submit" className="rounded-full bg-white text-brand-blue hover:bg-white/90">
-                  Subscribe
-                </Button>
-              </div>
+              
             </div>
           </div>
-        </section>
+        </section> */}
+        {/* <img src="jenda.jpg" /> */}
+        <div className="relative w-full h-[90vh] bg-cover bg-top flex items-center justify-center text-center text-white" style={{ backgroundImage: `url("jenda.jpg")` }}>
+          <div className="absolute inset-0 bg-[#081828] opacity-80">
+
+          </div>
+          <div className="relative z-10 px-6">
+            <span className="inline-block bg-blue-500 text-[#fff] px-4 py-2 rounded-full text-sm font-semibold mb-[15px]">
+              Stay Updated Daily
+            </span>
+
+            <h1 className="text-[32px] font-bold leading-10 text-[#fff] mb-5">Latest News & Insights From <br /> Around The World</h1>
+
+            <p className="text-[#fff] text-[14px] max-w-[550px] mx-auto">
+              Stay informed with the latest updates, breaking news, and in-depth analysis on a wide range of topics,
+              from global events to tech innovations, lifestyle trends, and more – all in one place.
+            </p>
+
+            <div className="mt-6 flex justify-center gap-4">
+              <Link href={'/tags'} className="button btn">
+                View Tags
+              </Link>
+              <Link href={'/artcles'} className="button btn-1">
+                Read Articles
+              </Link>
+            </div>
+          </div>
+        </div>
 
         <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
           <div className="container px-4 md:px-6">
@@ -267,7 +127,7 @@ export default function HomePage() {
               {popularTags.map((tag, index) => (
                 <Link
                   key={tag.name}
-                  href={`/tag/${tag.name.toLowerCase()}`}
+                  href={`/tags/${tag.id}`}
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
@@ -277,7 +137,7 @@ export default function HomePage() {
                   >
                     <TagIcon className="h-3 w-3 text-brand-blue" />
                     {tag.name}
-                    <span className="ml-1 text-xs text-muted-foreground">({tag.count})</span>
+                    <span className="ml-1 text-xs text-muted-foreground">({tag.news_count})</span>
                   </Badge>
                 </Link>
               ))}
@@ -321,15 +181,19 @@ export default function HomePage() {
                   className="overflow-hidden card-hover-effect animate-scale-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="aspect-video relative">
-                    <img
-                      src={post.image || "/placeholder.svg"}
+                  <div className="relative w-full h-40 mb-4">
+                    <Image
+                      src={post.image ?
+                        (post.image.includes('http') ?
+                          post.image.replace('image/upload/', '') :
+                          "https://res.cloudinary.com/dbqoymyi8/" + post.image
+                        )
+                        : "/placeholder.svg"
+                      }
                       alt={post.title}
-                      className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
+                      fill
+                      className="object-cover rounded-md"
                     />
-                    <Badge className={`absolute top-2 left-2 category-badge-${post.category.toLowerCase()}`}>
-                      {post.category}
-                    </Badge>
                   </div>
                   <CardContent className="p-4">
                     <div className="space-y-2">
@@ -339,7 +203,7 @@ export default function HomePage() {
                         </Link>
                       </h3>
                       <p className="text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                      <div className="flex flex-wrap gap-2 mt-2">
+                      {/* <div className="flex flex-wrap gap-2 mt-2">
                         {post.tags.map((tag: string) => (
                           <Link href={`/tag/${tag.toLowerCase()}`} key={tag}>
                             <Badge variant="outline" className="hover:bg-secondary transition-colors">
@@ -347,20 +211,20 @@ export default function HomePage() {
                             </Badge>
                           </Link>
                         ))}
-                      </div>
+                      </div> */}
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {post.readTime}
+                          {post.created_at ? format(new Date(post.created_at), "MMM d, yyyy") : ''}
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="flex items-center gap-1">
                             <MessageSquare className="h-4 w-4" />
-                            {post.comments}
+                            {post.comment_count}
                           </span>
                           <span className="flex items-center gap-1">
                             <ThumbsUp className="h-4 w-4" />
-                            {post.reactions}
+                            {post.reaction_count}
                           </span>
                         </div>
                       </div>
