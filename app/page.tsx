@@ -181,8 +181,8 @@ export default function HomePage() {
                 >
                   <div className="aspect-video relative">
                     <img
-                      src={post.image || "/placeholder.svg"}
-                      alt={post.title}
+                          src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
+                          alt={post.title}
                       className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                     />
                     <Badge className={`absolute top-2 left-2 category-badge-${post.category_name}`}>

@@ -10,6 +10,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import Cookies from 'js-cookie';
+
+interface UserData {
+  id: number;
+  username: string;
+  email: string;
+  name: string;
+  role: string;
+  avatar: string;
+  is_staff: boolean;
+  is_superuser: boolean;
+}
+
+interface AuthResponse {
+  status: number;
+  message: string;
+  data: {
+    token: string;
+    user: UserData;
+  };
+}
 
 export default function SignInPage() {
   const router = useRouter();
@@ -20,10 +41,15 @@ export default function SignInPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Kiểm tra nếu đã đăng nhập, chuyển hướng về dashboard
-    const accessToken = localStorage.getItem("access_token");
-    if (accessToken) {
-      router.push("/user/dashboard");
+    // Check if already logged in
+    const token = localStorage.getItem("token");
+    if (token) {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      if (userData.role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/user/dashboard");
+      }
     }
   }, [router]);
 
@@ -41,12 +67,23 @@ export default function SignInPage() {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
+      const data: AuthResponse = await response.json();
 
-      if (response.ok) {
-        localStorage.setItem("access_token", data.data.access_token);
-        localStorage.setItem("refresh_token", data.data.refresh_token);
-        router.push("/user/dashboard");
+      if (response.ok && data.status === 200) {
+        // Store in localStorage
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+
+        // Store in cookies
+        Cookies.set('token', data.data.token, { path: '/' });
+        Cookies.set('user', JSON.stringify(data.data.user), { path: '/' });
+
+        // Force a hard navigation to avoid middleware issues
+        if (data.data.user.role === "admin") {
+          window.location.href = "/admin/dashboard";
+        } else {
+          window.location.href = "/user/dashboard";
+        }
       } else {
         setError(data.message || "Invalid username or password");
       }

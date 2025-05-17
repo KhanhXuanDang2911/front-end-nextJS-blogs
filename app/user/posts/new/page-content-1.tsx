@@ -17,8 +17,7 @@ import { ArrowLeft, ImageIcon, LinkIcon, Save, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { addNews } from "@/service/newsService"
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { getUserFromToken } from "@/util/decode_jwt"
 
 export default function NewPostContentPage({ categories }: { categories: any }) {
   const router = useRouter()
@@ -47,51 +46,29 @@ export default function NewPostContentPage({ categories }: { categories: any }) 
         status
       })
 
-      // Lấy user data từ localStorage
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = userData.id;
-
-      if (!userId) {
-        toast({
-          title: "Error",
-          description: "User not found. Please login again.",
-          variant: "destructive",
-        });
-        router.push("/signin");
-        return;
-      }
-
-      const post: any = {
+      const userFromToken = getUserFromToken();
+      const post = {
         title: title,
         content: content,
         excerpt: excerpt,
         category: category,
-        author_id: userId,
-        status: status,
-        image: featuredImage
+        author_id: userFromToken.user_id,
+        status: "draft",
       };
-      const formData = new FormData();
-      Object.keys(post).forEach((key) => {
-        formData.append(key, post[key]);
-      });
-
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-      const res = await addNews(formData)
+      const res = await addNews(post)
       if (res.status === 201) {
         toast({
           title: "Post created",
           description: "Your post has been created successfully.",
         })
-        router.push("/user/posts")
-      } else {
-        toast({
-          title: "Error",
-          description: res.message,
-          variant: "destructive",
-        })
       }
+      toast({
+        title: "Error",
+        description: res.message,
+        variant: "destructive",
+      })
+
+      router.push("/user/posts")
     } catch (error) {
       console.error("Error creating post:", error)
       toast({
@@ -221,49 +198,12 @@ export default function NewPostContentPage({ categories }: { categories: any }) 
                                 <span className="sr-only">Add link</span>
                               </Button>
                             </div>
-                            <CKEditor
-                              editor={ClassicEditor}
-                              data={content}
-                              onChange={(event: any, editor: any) => {
-                                const data = editor.getData();
-                                setContent(data);
-                              }}
-                              config={{
-                                toolbar: [
-                                  'heading',
-                                  '|',
-                                  'bold',
-                                  'italic',
-                                  'link',
-                                  'bulletedList',
-                                  'numberedList',
-                                  '|',
-                                  'outdent',
-                                  'indent',
-                                  '|',
-                                  'imageUpload',
-                                  'blockQuote',
-                                  'insertTable',
-                                  'mediaEmbed',
-                                  'undo',
-                                  'redo'
-                                ]
-                              }}
-                              onReady={(editor: any) => {
-                                // Add custom styles to the editor container
-                                const editorElement = editor.ui.getEditableElement();
-                                const editorContainer = editorElement.parentElement;
-
-                                editorContainer.style.minHeight = '300px';
-                                editorContainer.style.border = 'none';
-                                editorContainer.style.padding = '1rem';
-                                editorContainer.style.backgroundColor = 'transparent';
-
-                                // Style the toolbar
-                                const toolbar = editor.ui.view.toolbar.element;
-                                toolbar.style.border = 'none';
-                                toolbar.style.backgroundColor = 'transparent';
-                              }}
+                            <Textarea
+                              id="content"
+                              placeholder="Write your post content here..."
+                              className="min-h-[300px] border-0 focus-visible:ring-0"
+                              value={content}
+                              onChange={(e) => setContent(e.target.value)}
                             />
                           </div>
                         </TabsContent>
@@ -386,3 +326,4 @@ export default function NewPostContentPage({ categories }: { categories: any }) 
     </div>
   )
 }
+

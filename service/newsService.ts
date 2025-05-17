@@ -1,4 +1,4 @@
-import { del, get, patch, post } from "@/util/request";
+import { del, get, patch, patchForFormData, post, postForFormData } from "@/util/request";
 
 const api: string = "news/";
 
@@ -39,13 +39,13 @@ export const getNewsDetail = async (id: number): Promise<any> => {
 
 export const addNews = async (news: any): Promise<any> => {
     const path: string = `${api}`;
-    const response: any = await post(path, news);
+    const response: any = await postForFormData(path, news);
     return response;
 };
 
 export const updateNews = async (news: any): Promise<any> => {
-    const path: string = `${api}${news.id}/`;
-    const response: any = await patch(path, news);
+    const path: string = `${api}${news.get('id')}/`;
+    const response: any = await patchForFormData(path, news);
     return response;
 };
 

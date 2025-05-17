@@ -1,6 +1,7 @@
 import { getCategoryForAdminPage } from "@/service/categoryService";
 import { Suspense } from "react";
 import TagsPage from "./page-content";
+import { unstable_noStore } from "next/cache";
 
 // Màu cố định cho trendingTags
 const trendingColors = [
@@ -30,6 +31,7 @@ function addColorToSortedTags(tags: { name: string; count: number }[]) {
 }
 
 export default async function TagPage() {
+    unstable_noStore(); 
     let trendingTags = await getCategoryForAdminPage(5, '-news_count');
     let sortedTags = await getCategoryForAdminPage();
 

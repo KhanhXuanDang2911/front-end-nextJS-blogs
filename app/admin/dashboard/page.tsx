@@ -1,8 +1,11 @@
 import { getAdminDashboardAll, getAdminDashboardNews } from "@/service/countService";
 import DashboardContent from "./page-content";
 import { getCategoryForAdminPage } from "@/service/categoryService";
+import { unstable_noStore } from "next/cache";
 
 export default async function Dashboard() {
+            unstable_noStore();
+    
     const countData = await getAdminDashboardAll()
     const viewsData: any[] = await getAdminDashboardNews()
     const categories: any[] = await getCategoryForAdminPage()

@@ -1,0 +1,148 @@
+/* CKEditor Theme Customization */
+.ck-editor__editable {
+    min-height: 300px !important;
+    background-color: transparent !important;
+}
+
+/* Blog post content styles */
+.blog-content img,
+.ck-content img {
+    display: block !important;
+    margin: 2rem auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 0.5rem !important;
+}
+
+.blog-content p,
+.ck-content p {
+    margin: 1.5rem 0 !important;
+    line-height: 1.8 !important;
+}
+
+.blog-content h1,
+.ck-content h1 {
+    font-size: 2.5em !important;
+    margin: 2rem 0 1.5rem !important;
+    font-weight: bold !important;
+}
+
+.blog-content h2,
+.ck-content h2 {
+    font-size: 2em !important;
+    margin: 2rem 0 1rem !important;
+    font-weight: bold !important;
+}
+
+.blog-content h3,
+.ck-content h3 {
+    font-size: 1.5em !important;
+    margin: 1.5rem 0 1rem !important;
+    font-weight: bold !important;
+}
+
+.blog-content blockquote,
+.ck-content blockquote {
+    font-style: italic !important;
+    margin: 2rem 0 !important;
+    padding: 1rem 2rem !important;
+    border-left: 4px solid #e5e7eb !important;
+    background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+.blog-content ul,
+.blog-content ol,
+.ck-content ul,
+.ck-content ol {
+    margin: 1.5rem 0 !important;
+    padding-left: 2rem !important;
+}
+
+.blog-content li,
+.ck-content li {
+    margin: 0.5rem 0 !important;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .blog-content blockquote,
+[data-theme="dark"] .ck-content blockquote {
+    border-left-color: #374151 !important;
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Dark mode styles */
+[data-theme="dark"] .ck.ck-editor__main>.ck-editor__editable {
+    background-color: transparent !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .ck.ck-editor__main>.ck-editor__editable::selection {
+    background-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+[data-theme="dark"] .ck.ck-toolbar {
+    background: transparent !important;
+    border: none !important;
+}
+
+[data-theme="dark"] .ck.ck-button,
+[data-theme="dark"] .ck.ck-button.ck-on {
+    color: #fff !important;
+    background: transparent !important;
+}
+
+[data-theme="dark"] .ck.ck-button:hover,
+[data-theme="dark"] .ck.ck-button.ck-on:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Light mode adjustments */
+.ck-editor__editable {
+    box-shadow: none !important;
+}
+
+.ck.ck-toolbar {
+    border: none !important;
+    background: transparent !important;
+}
+
+.ck.ck-button {
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Content styles */
+.ck-content h1 {
+    font-size: 2em !important;
+    margin-bottom: 0.5em !important;
+}
+
+.ck-content h2 {
+    font-size: 1.5em !important;
+    margin-bottom: 0.5em !important;
+}
+
+.ck-content p {
+    margin-bottom: 1em !important;
+}
+
+.ck-content blockquote {
+    font-style: italic !important;
+    margin: 1em 0 !important;
+    padding-left: 1em !important;
+    border-left: 4px solid #e5e7eb !important;
+}
+
+[data-theme="dark"] .ck-content blockquote {
+    border-left-color: #374151 !important;
+}
+
+.ck-content pre {
+    background-color: #f3f4f6 !important;
+    padding: 1em !important;
+    border-radius: 0.375rem !important;
+    margin: 1em 0 !important;
+}
+
+[data-theme="dark"] .ck-content pre {
+    background-color: #1f2937 !important;
+}

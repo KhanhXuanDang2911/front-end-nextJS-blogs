@@ -10,7 +10,7 @@ export const get = async <T>(path: string): Promise<T> => {
 
 export const post = async <T>(path: string, data: any): Promise<T> => {
   console.log(data)
-  const res = await fetch(`${API_SERVER}${path}`, { 
+  const res = await fetch(`${API_SERVER}${path}`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -46,20 +46,19 @@ export const post = async <T>(path: string, data: any): Promise<T> => {
 // };
 
 export const postForFormData = async (path: any, data: FormData) => {
-  try{
+  try {
     const res = await fetch(`${API_SERVER}${path}`, {
       method: "POST",
       headers: {
         Accept: "application/json",
       },
-      body: data, 
+      body: data,
     });
 
-    console.log("ressssssssssss", res)
     return res.json();
-  } catch(error){
-        console.error("Error in postForFormData:", error.message);
-//     return { status: "error", message: error.message };
+  } catch (error: any) {
+    console.error("Error in postForFormData:", error.message);
+    //     return { status: "error", message: error.message };
 
   }
 };
@@ -82,8 +81,33 @@ export const put = async <T>(path: string, data: any): Promise<T> => {
   return res.json();
 };
 
+export const patchForFormData = async (path: string, data: any) => {
+  try {
+    const res = await fetch(`${API_SERVER}${path}`, {
+      method: "PATCH",
+      headers: {
+        // Accept: "application/json",
+      },
+      body: data,
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    try {
+      return await res;
+    } catch (jsonError) {
+      throw new Error("Invalid JSON response from server");
+    }
+  } catch (error: any) {
+    console.error("Error in patchForFormData:", error.message);
+    throw error;
+  }
+};
+
 export const patch = async <T>(path: string, data: any): Promise<T> => {
-  const res:any = await fetch(`${API_SERVER}${path}`, {
+  const res: any = await fetch(`${API_SERVER}${path}`, {
     method: "PATCH",
     headers: {
       Accept: "application/json",
@@ -100,12 +124,12 @@ export const patch = async <T>(path: string, data: any): Promise<T> => {
 };
 
 export const del = async <T>(path: string): Promise<T> => {
-  const res:any = await fetch(`${API_SERVER}${path}`, {
+  const res: any = await fetch(`${API_SERVER}${path}`, {
     method: "DELETE",
   });
 
   if (!res.ok) {
     throw new Error(`DELETE ${path} failed: ${res.statusText}`);
   }
-    return res
+  return res
 };

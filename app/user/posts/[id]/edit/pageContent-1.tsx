@@ -15,8 +15,6 @@ import { ArrowLeft, ImageIcon, LinkIcon, Save, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { getNewsDetail, updateNews } from "@/service/newsService";
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default function EditPostContentPage({
   id,
@@ -81,47 +79,27 @@ export default function EditPostContentPage({
     setIsSaving(true);
 
     try {
-      const postObj: any = {
-        id: id,
-        title: title,
-        excerpt: excerpt,
-        content: content,
-        category: category,
-        status: status,
+      const postObj = {
+        id,
+        title,
+        excerpt,
+        content,
+        category,
+        featuredImage,
+        status,
       };
-
-      // Only add image to formData if a new image is selected
-      const formData = new FormData();
-      Object.keys(postObj).forEach((key) => {
-        formData.append(key, postObj[key]);
-      });
-
-      // If there's a new image, add it to formData
-      if (featuredImage) {
-        formData.append('image', featuredImage);
-      } else if (currentImage) {
-        // If no new image but we have an existing image, send the current image URL
-        formData.append('current_image', currentImage);
-      }
-
-      // Kiểm tra dữ liệu trong formData
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-
-      // 🛠 Sửa lỗi: Gửi formData thay vì postObj
-      const res = await updateNews(formData);
-
-      if (res.status === 204) {
+      
+      const res = await updateNews(postObj)
+      if(res.status === 204){
         toast({
           title: "Post updated",
           description: "Your post has been updated successfully.",
         });
-
+  
         router.push("/user/posts");
-
+  
       }
-      else {
+      else{
         toast({
           title: "update failed"
         });
@@ -265,49 +243,12 @@ export default function EditPostContentPage({
                             <span className="sr-only">Add link</span>
                           </Button>
                         </div>
-                        <CKEditor
-                          editor={ClassicEditor}
-                          data={content}
-                          onChange={(event: any, editor: any) => {
-                            const data = editor.getData();
-                            setContent(data);
-                          }}
-                          config={{
-                            toolbar: [
-                              'heading',
-                              '|',
-                              'bold',
-                              'italic',
-                              'link',
-                              'bulletedList',
-                              'numberedList',
-                              '|',
-                              'outdent',
-                              'indent',
-                              '|',
-                              'imageUpload',
-                              'blockQuote',
-                              'insertTable',
-                              'mediaEmbed',
-                              'undo',
-                              'redo'
-                            ]
-                          }}
-                          onReady={(editor: any) => {
-                            // Add custom styles to the editor container
-                            const editorElement = editor.ui.getEditableElement();
-                            const editorContainer = editorElement.parentElement;
-
-                            editorContainer.style.minHeight = '300px';
-                            editorContainer.style.border = 'none';
-                            editorContainer.style.padding = '1rem';
-                            editorContainer.style.backgroundColor = 'transparent';
-
-                            // Style the toolbar
-                            const toolbar = editor.ui.view.toolbar.element;
-                            toolbar.style.border = 'none';
-                            toolbar.style.backgroundColor = 'transparent';
-                          }}
+                        <Textarea
+                          id="content"
+                          placeholder="Write your post content here..."
+                          className="min-h-[300px] border-0 focus-visible:ring-0"
+                          value={content}
+                          onChange={(e) => setContent(e.target.value)}
                         />
                       </div>
                     </TabsContent>

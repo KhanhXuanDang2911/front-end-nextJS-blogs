@@ -24,7 +24,6 @@ export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
     }, 800)
   }
 
-  const displayedPosts = allPosts.slice(0, visiblePosts)
   const hasMorePosts = visiblePosts < allPosts.length
 
   return (
@@ -52,7 +51,7 @@ export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-            {displayedPosts.map((post, index) => (
+            {allPosts.map((post, index) => (
               <Card
                 key={post.id}
                 className="overflow-hidden card-hover-effect animate-scale-in"
@@ -60,8 +59,8 @@ export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
               >
                 <div className="aspect-video relative">
                   <img
-                    src={post.image || "/placeholder.svg"}
-                    alt={post.title}
+                          src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
+                          alt={post.title}
                     className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                   />
                   <Badge className={`absolute top-2 left-2 category-badge-${post.category_name}`}>

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog"
 import { deleteNews, getNewsForAdminPage, searchNewsByTitle } from "@/service/newsService"
 import { message, Spin } from "antd"
-import { getUserFromToken } from "@/util/decode_jwt";
+import { getUserId } from "@/utils/auth"
 
 export default function UserPostsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -35,7 +35,7 @@ export default function UserPostsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedNews, setSelectedNews] = useState<any>(null)
-  const userId = getUserFromToken().user_id
+  const userId = getUserId()
 
   const handleDelete = (news: any) => {
     setSelectedNews(news)
@@ -43,6 +43,7 @@ export default function UserPostsPage() {
   }
 
   const fetchNews = async () => {
+    if (!userId) return;
     setIsLoading(true);
     const res = searchTerm !== "" ? await searchNewsByTitle(searchTerm, userId) : await getNewsForAdminPage(10000, 0, userId)
     console.log(userId)
@@ -52,6 +53,7 @@ export default function UserPostsPage() {
   }
 
   const handleSearch = async () => {
+    if (!userId) return;
     const news = await searchNewsByTitle(searchTerm, userId)
     setNewsList(news)
   }
@@ -137,7 +139,7 @@ export default function UserPostsPage() {
                     <div className="flex items-center gap-3">
                       <div className="relative h-10 w-16 rounded overflow-hidden">
                         <img
-                          src={post.image || "/placeholder.svg"}
+                          src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
                           alt={post.title}
                           className="object-cover w-full h-full"
                         />

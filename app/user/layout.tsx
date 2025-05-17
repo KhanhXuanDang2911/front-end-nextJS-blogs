@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LayoutDashboard, FileText, Settings, LogOut, User, PlusCircle, ThumbsUp, MessageSquare } from "lucide-react"
+import { getUsersDetail } from "@/service/userService"
+import { getUserId } from "@/utils/auth"
 
 export default function UserLayout({
   children,
@@ -27,6 +29,7 @@ export default function UserLayout({
   const router = useRouter()
   const [user, setUser] = useState<{ name: string; email: string } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [userImg, setUserImg] = useState<any>(null)
 
   useEffect(() => {
     // Check if user is logged in
@@ -46,17 +49,34 @@ export default function UserLayout({
     }
   }, [router])
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <SiteHeader />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="animate-pulse">Loading...</div>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex flex-col min-h-screen">
+  //       <SiteHeader />
+  //       <main className="flex-1 flex items-center justify-center">
+  //         <div className="animate-pulse">Loading...</div>
+  //       </main>
+  //       <Footer />
+  //     </div>
+  //   )
+  // }
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userId = getUserId()
+      if (userId) {
+        try {
+          const response = await getUsersDetail(userId)
+          setUserImg(response.avatar)
+        } catch (error) {
+          console.error("Failed to fetch user details:", error)
+        }
+      }
+    };
+
+    fetchUser();
+  }, []);
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -76,7 +96,7 @@ export default function UserLayout({
             </Button>
             <Link href={'/user/profile'} className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt={user?.name || "User"} />
+                <AvatarImage src={`https://res.cloudinary.com/dbqoymyi8/${userImg}`} alt={user?.name || "User"} />
                 <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
               </Avatar>
             </Link>

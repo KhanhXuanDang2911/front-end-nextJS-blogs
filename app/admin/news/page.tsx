@@ -133,7 +133,8 @@ export default function NewsManagementPage() {
                   <TableCell className="font-normal">{news.excerpt}</TableCell>
                   <TableCell className="font-normal">{news.author_id}</TableCell> {/* Hiển thị ID của tác giả */}
                   <TableCell className="font-normal">{news.status}</TableCell>
-                  <TableCell className="font-normal">{news.image ? <img src={news.image} alt="News Image" className="w-16 h-16 object-cover" /> : 'No Image'}</TableCell> {/* Hiển thị hình ảnh nếu có */}
+                  <TableCell className="font-normal">{news.image ? <img                           src={news.image ? "https://res.cloudinary.com/dbqoymyi8/" + news.image : "/placeholder.svg"}
+ alt="News Image" className="w-16 h-16 object-cover" /> : 'No Image'}</TableCell> {/* Hiển thị hình ảnh nếu có */}
                   <TableCell className="font-normal">{news.published_at ? new Date(news.published_at).toLocaleString() : 'Not Published'}</TableCell> {/* Hiển thị thời gian công bố */}
                   <TableCell className="font-normal">{news.category}</TableCell> {/* Hiển thị category */}
                   <TableCell className="text-right">

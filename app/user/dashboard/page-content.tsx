@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,11 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, FileText, MessageSquare, ThumbsUp, Edit, Clock } from "lucide-react"
 import { getUsersDashboardAll } from "@/service/countService"
-import { get } from "http"
-import { getUserFromToken } from "@/util/decode_jwt"
+import { getUserId } from "@/utils/auth"
 import { getNewsForAdminPage } from "@/service/newsService"
-import { set } from "date-fns"
-
 
 export default function UserDashboardContentPage() {
   const [count, setCount] = useState<any>({ news_count: 0, comment_count: 0, reaction_count: 0 })
@@ -20,11 +17,13 @@ export default function UserDashboardContentPage() {
 
   useEffect(() => {
     const fetchCountAndNews = async () => {
-      const userId = getUserFromToken().user_id
-      const res = await getUsersDashboardAll(userId)
-      const news = await getNewsForAdminPage(3, 0, userId)
-      setCount(res)
-      setDisplayedPosts(news)
+      const userId = getUserId()
+      if (userId) {
+        const res = await getUsersDashboardAll(userId)
+        const news = await getNewsForAdminPage(3, 0, userId)
+        setCount(res)
+        setDisplayedPosts(news)
+      }
     }
     fetchCountAndNews()
   }, [])
@@ -87,7 +86,7 @@ export default function UserDashboardContentPage() {
                 >
                   <div className="aspect-video relative">
                     <img
-                      src={post.image || "/placeholder.svg"}
+                      src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
                       alt={post.title}
                       className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                     />

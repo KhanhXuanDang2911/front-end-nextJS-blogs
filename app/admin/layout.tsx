@@ -9,7 +9,7 @@ export default function AdminLayout({
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-        <div className="flex-1 overflow-auto">{children}</div>
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   )
 }

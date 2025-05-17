@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { format } from "date-fns"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -29,53 +30,66 @@ import {
 } from "lucide-react"
 import CommentSection from "./comment-section"
 import { addReaction, deleteReaction, getReactionsOfUserInNews, updateReaction } from "@/service/reactionService"
-import { getUserFromToken } from "@/util/decode_jwt"
+import { getUserId } from "@/utils/auth"
 import { set } from "date-fns"
 
-export default function BlogPostPageContent({ id, post, comments, relatedPosts }: 
+export default function BlogPostPageContent({ id, post, comments, relatedPosts }:
   { post: any, comments: any, relatedPosts: any, id: any }) {
   const [activeReaction, setActiveReaction] = useState<any | null>(null)
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, "MMMM d, yyyy 'at' h:mm a");
+    } catch (error) {
+      return dateString;
+    }
+  };
+
   useEffect(() => {
     const fetchReaction = async () => {
       try {
-        const userFromToken = getUserFromToken();
-        const userId = userFromToken.user_id;
-        let reactionOfUser = await getReactionsOfUserInNews(id, userId);
-        setActiveReaction(reactionOfUser || null);
+        const userId = getUserId();
+        if (userId) {
+          let reactionOfUser = await getReactionsOfUserInNews(id, userId);
+          setActiveReaction(reactionOfUser || null);
+        }
       } catch (error) {
         console.error("Error fetching reactions:", error);
       }
     };
-  
+
     fetchReaction();
   }, []);
-  
-  const userFromToken = getUserFromToken();
-  const handleReaction = async(type: string) => {
-    if(activeReaction === null){
+
+  const handleReaction = async (type: string) => {
+    const userId = getUserId();
+    if (!userId) return;
+
+    if (activeReaction === null) {
       const reaction = {
-        user_id: userFromToken.user_id,
+        user_id: userId,
         news_id: id,
         type: type
       }
       const res = await addReaction(reaction)
-      if(res.status === 201){
+      if (res.status === 201) {
         setActiveReaction(res.data)
       }
     }
-    else{
-      if(activeReaction.type == type){
+    else {
+      if (activeReaction.type == type) {
         const res = await deleteReaction(activeReaction.id)
-        if(res.status === 205) setActiveReaction(null) 
-          return
+        if (res.status === 205) setActiveReaction(null)
+        return
       }
       const reaction = {
         id: activeReaction.id,
         type: type
       }
       const res = await updateReaction(reaction)
-      console.log("res", res  )
-      if(res.status === 204) setActiveReaction({...activeReaction, type: type})
+      console.log("res", res)
+      if (res.status === 204) setActiveReaction({ ...activeReaction, type: type })
     }
   }
 
@@ -129,11 +143,11 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-brand-blue" />
-                  <span>{post.published_at || `Draf`}</span>
+                  <span>{post.published_at ? formatDate(post.published_at) : 'Draft'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-brand-purple" />
-                  <span>{post.created_at}</span>
+                  <span>{formatDate(post.created_at)}</span>
                 </div>
                 {/* <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-brand-pink" />
@@ -142,8 +156,11 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="h-10 w-10 ring-2 ring-brand-blue/20">
-                  <AvatarImage src={post.author_avatar} alt='img' />
-                  <AvatarFallback>{post.author_name}</AvatarFallback>
+                  <AvatarImage
+                    src={post.author_avatar ? `https://res.cloudinary.com/dbqoymyi8/${post.author_avatar}` : '/placeholder-user.jpg'}
+                    alt={post.author_name}
+                  />
+                  <AvatarFallback>{post.author_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="font-medium">{post.author_name}</div>
@@ -154,7 +171,8 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
 
             {/* Featured Image */}
             <div className="relative w-full h-[400px] mb-8 rounded-lg overflow-hidden shadow-xl animate-scale-in">
-              <Image src={post.image || "/placeholder.svg"} alt={post.title} fill className="object-cover" />
+              <Image src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
+                alt={post.title} fill className="object-cover" />
             </div>
 
 

@@ -65,12 +65,12 @@ export default function CMT_UI({ id, childIds, comment,
             {commentsById[parentId].isShowSubCmt &&
                 <div
                     key={comment.id}
-                >
+                >  
                     <div className={''}>
                         <div className="flex justify-between items-start">
                             <div className="flex items-start gap-3 flex-1">
                                 <Avatar className={`${parentId == 0 ? 'h-10 w-10' : 'h-7 w-7'}`}>
-                                    <AvatarImage src={comment.author_avatar} alt={comment.author_name} />
+                                    <AvatarImage src={`https://res.cloudinary.com/dbqoymyi8/${comment.author_avatar}`} alt={comment.author_name} />
                                     <AvatarFallback>{comment.author_name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex flex-col flex-1 gap-1">

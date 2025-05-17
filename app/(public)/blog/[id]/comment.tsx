@@ -7,17 +7,38 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { addComment } from "@/service/commentService";
 import { deleteComment, updateComment } from "@/service/baseCommentService";
-import { getUserFromToken } from "@/util/decode_jwt";
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function CommentContent({ comments, idBl }:
     { comments: any[], idBl: any }) {
+    const router = useRouter();
     const [commentText, setCommentText] = useState("")
 
+    const getUserId = () => {
+        try {
+            const userData = JSON.parse(localStorage.getItem("user") || "{}");
+            return userData.id;
+        } catch (error) {
+            return null;
+        }
+    };
+
     const handleReply = async (commentId: number, replyText: string) => {
-        const userFromToken = getUserFromToken();
+        const userId = getUserId();
+        if (!userId) {
+            toast({
+                title: "Authentication required",
+                description: "Please login to comment.",
+                variant: "destructive",
+            });
+            router.push("/signin");
+            return;
+        }
+
         if (replyText.trim()) {
             const newSubCmt = {
-                user: userFromToken.user_id,
+                user: userId,
                 content: replyText,
                 parent_comment: commentId
             }
@@ -47,7 +68,7 @@ export default function CommentContent({ comments, idBl }:
                 setCmts({
                     ...newCmtObj,
                     [commentId]: nextParent,
-                    [res.data.id]: { ...res.data, childIds: []}
+                    [res.data.id]: { ...res.data, childIds: [] }
                 })
             }
             return
@@ -55,10 +76,20 @@ export default function CommentContent({ comments, idBl }:
     }
 
     const handleComment = async () => {
-        const userFromToken = getUserFromToken();
+        const userId = getUserId();
+        if (!userId) {
+            toast({
+                title: "Authentication required",
+                description: "Please login to comment.",
+                variant: "destructive",
+            });
+            router.push("/signin");
+            return;
+        }
+
         if (commentText.trim()) {
             const newSubCmt = {
-                user: userFromToken.user_id,
+                user: userId,
                 content: commentText,
                 article: idBl
             }
@@ -75,14 +106,14 @@ export default function CommentContent({ comments, idBl }:
                     [0]: nextParent,
                     [res.data.id]: { ...res.data, childIds: [] }
                 })
+                setCommentText("")
             }
-            setCommentText("")
             return
         }
     }
 
     const cmtsObjInit = comments.reduce((obj, cmt) => {
-        obj[cmt.id] = { ...cmt, childIds: [], isShowSubCmt: false};
+        obj[cmt.id] = { ...cmt, childIds: [], isShowSubCmt: false };
         return obj;
     }, {});
 
@@ -104,7 +135,7 @@ export default function CommentContent({ comments, idBl }:
 
         const subCmts: any[] = await getCommentsByParentId(parentId);
         const subCmtsObj = subCmts.reduce((obj, cmt) => {
-            obj[cmt.id] = { ...cmt, childIds: [], isShowSubCmt: false};
+            obj[cmt.id] = { ...cmt, childIds: [], isShowSubCmt: false };
             return obj;
         }, {});
 
@@ -124,7 +155,7 @@ export default function CommentContent({ comments, idBl }:
     const handleDeleteCmt = async (id: any, parentId: any) => {
         try {
             const res = await deleteComment(id);
-            
+
             if (res.status === 205) {
                 const parent = cmtsObj[parentId];
                 if (!parent) return;
@@ -134,11 +165,13 @@ export default function CommentContent({ comments, idBl }:
                 Object.keys(newCmtObj).reverse().forEach(key => {
                     console.log(key, commentUpdateCountSub, newCmtObj[key].childIds)
                     if (newCmtObj[key].childIds.indexOf(commentUpdateCountSub) != -1) {
-                        
+
                         newCmtObj = {
                             ...newCmtObj,
-                            [key]: { ...newCmtObj[key],
-                                sub_comment_count: newCmtObj[key].sub_comment_count - newCmtObj[id].sub_comment_count - 1}
+                            [key]: {
+                                ...newCmtObj[key],
+                                sub_comment_count: newCmtObj[key].sub_comment_count - newCmtObj[id].sub_comment_count - 1
+                            }
                         }
                         commentUpdateCountSub = Number(key)
                     }
@@ -148,7 +181,7 @@ export default function CommentContent({ comments, idBl }:
                     childIds: parent.childIds.filter((it: any) => it !== id),
                     // isShowSubCmt: true
                 };
-                
+
                 const { [id]: _, ...newCmtObjFinal } = newCmtObj;
                 setCmts({
                     ...newCmtObjFinal,
@@ -158,9 +191,9 @@ export default function CommentContent({ comments, idBl }:
         } catch (error) {
             console.error("Lỗi khi xóa bình luận:", error);
         }
-    };       
+    };
 
-    const handleUpdateCmt = async(id: any, content: any) => {
+    const handleUpdateCmt = async (id: any, content: any) => {
         try {
             const cmtUpdate = {
                 id: id,
@@ -168,12 +201,12 @@ export default function CommentContent({ comments, idBl }:
             }
             const res = await updateComment(cmtUpdate);
             if (res.status === 204) {
-                
+
                 const { [id]: _, ...newCmtsObj } = cmtsObj;
 
                 setCmts({
                     ...newCmtsObj,
-                    [id]: {...cmtsObj[id], content: content},
+                    [id]: { ...cmtsObj[id], content: content },
                 });
                 return true
             }

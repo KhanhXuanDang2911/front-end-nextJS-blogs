@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { logout } from "@/utils/auth"
 
 const routes = [
   {
@@ -95,7 +96,11 @@ export function Sidebar() {
         </div>
       </div>
       <div className="px-3 py-2">
-        <Button variant="ghost" className="w-full justify-start text-zinc-400 hover:text-white hover:bg-white/10">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-zinc-400 hover:text-white hover:bg-white/10"
+          onClick={logout}
+        >
           <LogOut className="h-5 w-5 mr-3 text-red-500" />
           Logout
         </Button>
