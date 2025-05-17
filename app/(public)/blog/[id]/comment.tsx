@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CommentTree from "./cmt-tree";
 import { addSubComment, getCommentsByParentId } from "@/service/subCommentService";
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,6 +14,7 @@ export default function CommentContent({ comments, idBl }:
     { comments: any[], idBl: any }) {
     const router = useRouter();
     const [commentText, setCommentText] = useState("")
+    const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
     const getUserId = () => {
         try {
@@ -23,6 +24,17 @@ export default function CommentContent({ comments, idBl }:
             return null;
         }
     };
+
+    useEffect(() => {
+        try {
+            const userData = JSON.parse(localStorage.getItem("user") || "{}");
+            if (userData.avatar) {
+                setUserAvatar(userData.avatar);
+            }
+        } catch (error) {
+            console.error("Error getting user avatar:", error);
+        }
+    }, []);
 
     const handleReply = async (commentId: number, replyText: string) => {
         const userId = getUserId();
@@ -229,8 +241,24 @@ export default function CommentContent({ comments, idBl }:
                 <CardContent className="pt-6">
                     <div className="flex gap-4">
                         <Avatar className="h-10 w-10">
-                            <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
-                            <AvatarFallback>YA</AvatarFallback>
+                            {userAvatar ? (
+                                <AvatarImage
+                                    src={`https://res.cloudinary.com/dbqoymyi8/${userAvatar}`.replace('image/upload/', '')}
+                                    alt="Your Avatar"
+                                />
+                            ) : (
+                                <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
+                            )}
+                            <AvatarFallback>
+                                {(() => {
+                                    try {
+                                        const user = JSON.parse(localStorage.getItem("user") || "{}");
+                                        return user.name ? user.name.charAt(0).toUpperCase() : "?";
+                                    } catch (error) {
+                                        return "?";
+                                    }
+                                })()}
+                            </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                             <Textarea

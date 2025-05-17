@@ -14,6 +14,8 @@ import { Clock, MessageSquare, ThumbsUp, Search, TagIcon, ArrowRight, Sparkles }
 import { getNewsForAdminPage } from "@/service/newsService"
 import { getCategoryForAdminPage } from "@/service/categoryService"
 import './style.css'
+import Image from "next/image"
+import { format } from "date-fns"
 
 export default function HomePage() {
   const [visiblePosts, setVisiblePosts] = useState(6)
@@ -85,29 +87,29 @@ export default function HomePage() {
         {/* <img src="jenda.jpg" /> */}
         <div className="relative w-full h-[90vh] bg-cover bg-top flex items-center justify-center text-center text-white" style={{ backgroundImage: `url("jenda.jpg")` }}>
           <div className="absolute inset-0 bg-[#081828] opacity-80">
-            
+
           </div>
           <div className="relative z-10 px-6">
-        <span className="inline-block bg-blue-500 text-[#fff] px-4 py-2 rounded-full text-sm font-semibold mb-[15px]">
-          Stay Updated Daily
-        </span>
-        
-        <h1 className="text-[32px] font-bold leading-10 text-[#fff] mb-5">Latest News & Insights From <br/> Around The World</h1>
-        
-        <p className="text-[#fff] text-[14px] max-w-[550px] mx-auto">
-        Stay informed with the latest updates, breaking news, and in-depth analysis on a wide range of topics, 
-          from global events to tech innovations, lifestyle trends, and more – all in one place.
-        </p>
+            <span className="inline-block bg-blue-500 text-[#fff] px-4 py-2 rounded-full text-sm font-semibold mb-[15px]">
+              Stay Updated Daily
+            </span>
 
-        <div className="mt-6 flex justify-center gap-4">
-          <Link href={'/tags'} className="button btn">
-            View Tags
-          </Link>
-          <Link href={'/artcles'} className="button btn-1">
-            Read Articles
-          </Link>
-        </div>
-        </div>
+            <h1 className="text-[32px] font-bold leading-10 text-[#fff] mb-5">Latest News & Insights From <br /> Around The World</h1>
+
+            <p className="text-[#fff] text-[14px] max-w-[550px] mx-auto">
+              Stay informed with the latest updates, breaking news, and in-depth analysis on a wide range of topics,
+              from global events to tech innovations, lifestyle trends, and more – all in one place.
+            </p>
+
+            <div className="mt-6 flex justify-center gap-4">
+              <Link href={'/tags'} className="button btn">
+                View Tags
+              </Link>
+              <Link href={'/artcles'} className="button btn-1">
+                Read Articles
+              </Link>
+            </div>
+          </div>
         </div>
 
         <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
@@ -179,15 +181,19 @@ export default function HomePage() {
                   className="overflow-hidden card-hover-effect animate-scale-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="aspect-video relative">
-                    <img
-                          src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
-                          alt={post.title}
-                      className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
+                  <div className="relative w-full h-40 mb-4">
+                    <Image
+                      src={post.image ?
+                        (post.image.includes('http') ?
+                          post.image.replace('image/upload/', '') :
+                          "https://res.cloudinary.com/dbqoymyi8/" + post.image
+                        )
+                        : "/placeholder.svg"
+                      }
+                      alt={post.title}
+                      fill
+                      className="object-cover rounded-md"
                     />
-                    <Badge className={`absolute top-2 left-2 category-badge-${post.category_name}`}>
-                      {post.category_name}
-                    </Badge>
                   </div>
                   <CardContent className="p-4">
                     <div className="space-y-2">
@@ -209,7 +215,7 @@ export default function HomePage() {
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {post.created_at}
+                          {post.created_at ? format(new Date(post.created_at), "MMM d, yyyy") : ''}
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="flex items-center gap-1">

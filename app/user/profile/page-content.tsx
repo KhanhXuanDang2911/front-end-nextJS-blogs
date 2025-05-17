@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -19,9 +19,23 @@ export default function ProfilePageContent({ usersEdit }: { usersEdit: any }) {
 
   const [formChangePassword] = Form.useForm();
 
-  const [fileList, setFileList] = useState([]);
+  const [fileList, setFileList] = useState<any[]>([]);
 
   const [loading, setLoading] = useState<boolean>(false)
+
+  // Load current avatar into fileList when component mounts
+  useEffect(() => {
+    if (usersEdit && usersEdit.avatar) {
+      setFileList([
+        {
+          uid: '-1',
+          name: 'current-avatar',
+          status: 'done',
+          url: `https://res.cloudinary.com/dbqoymyi8/${usersEdit.avatar}`.replace('image/upload/', ''),
+        },
+      ]);
+    }
+  }, [usersEdit]);
 
   const handleUploadChange = ({ fileList }: any) => {
     setFileList(fileList);
@@ -31,15 +45,34 @@ export default function ProfilePageContent({ usersEdit }: { usersEdit: any }) {
     try {
       setLoading(true)
       const user = await formEdit.validateFields();
-      delete user.avatar;
-      console.log("user", user)
-      const res = await updateUser(user)
-      console.log("res", res)
+
+      // Create FormData object
+      const formData = new FormData();
+
+      // Add user fields to FormData
+      Object.keys(user).forEach((key) => {
+        formData.append(key, user[key]);
+      });
+
+      // Add avatar file if selected
+      if (fileList.length > 0 && fileList[0].originFileObj) {
+        formData.append("avatar", fileList[0].originFileObj);
+      }
+
+      // Log FormData entries for debugging
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      const res = await updateUser(formData);
+
       if (res.status === 204) {
         messageApi.open({
           type: 'success',
           content: `Update user ${user.id} successful`,
         });
+        // Reload page to see changes
+        window.location.reload();
       }
       else if (res.status == 500) {
         messageApi.open({
@@ -164,20 +197,31 @@ export default function ProfilePageContent({ usersEdit }: { usersEdit: any }) {
                 </Form.Item>
 
                 {/* Avatar Upload */}
-                {usersEdit?.avatar ? '' :
-
-                  <Form.Item label="Avatar" name="avatar">
-                    <Upload
-                      beforeUpload={() => false}
-                      listType="picture"
-                      fileList={fileList}
-                      onChange={handleUploadChange}
-                      maxCount={1}
-                      accept="image/*"
-                    >
-                      <ButtonAntd icon={<UploadOutlined />}>Upload Avatar</ButtonAntd>
-                    </Upload>
-                  </Form.Item>}
+                <Form.Item label={usersEdit?.avatar ? 'Update Avatar' : 'Add Avatar'} name="avatar">
+                  {usersEdit?.avatar && (
+                    <div className="mb-4">
+                      <img
+                        src={usersEdit.avatar.includes('http')
+                          ? usersEdit.avatar.replace('image/upload/', '')
+                          : `https://res.cloudinary.com/dbqoymyi8/${usersEdit.avatar}`.replace('image/upload/', '')}
+                        alt="Current Avatar"
+                        className="w-20 h-20 object-cover rounded-full"
+                      />
+                    </div>
+                  )}
+                  <Upload
+                    beforeUpload={() => false}
+                    listType="picture"
+                    fileList={fileList}
+                    onChange={handleUploadChange}
+                    maxCount={1}
+                    accept="image/*"
+                  >
+                    <ButtonAntd icon={<UploadOutlined />}>
+                      {usersEdit?.avatar ? 'Change Avatar' : 'Upload Avatar'}
+                    </ButtonAntd>
+                  </Upload>
+                </Form.Item>
               </Form>
             </CardContent>
             <CardFooter style={{ display: 'flex', flexDirection: 'row-reverse' }}>
@@ -262,7 +306,7 @@ export default function ProfilePageContent({ usersEdit }: { usersEdit: any }) {
               </Form>
             </CardContent>
             <CardFooter className="flex flex-row-reverse">
-                  <ButtonAntd type="primary">Change Password</ButtonAntd>
+              <ButtonAntd type="primary">Change Password</ButtonAntd>
             </CardFooter>
           </Card>
 

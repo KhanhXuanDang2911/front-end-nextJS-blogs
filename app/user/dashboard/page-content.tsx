@@ -84,9 +84,15 @@ export default function UserDashboardContentPage() {
                   className="overflow-hidden card-hover-effect animate-scale-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="aspect-video relative">
+                  <div className="relative h-24 rounded-md overflow-hidden mb-2">
                     <img
-                      src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
+                      src={post.image ?
+                        (post.image.includes('http') ?
+                          post.image.replace('image/upload/', '') :
+                          "https://res.cloudinary.com/dbqoymyi8/" + post.image
+                        )
+                        : "/placeholder.svg"
+                      }
                       alt={post.title}
                       className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                     />
@@ -110,11 +116,11 @@ export default function UserDashboardContentPage() {
                         <div className="flex items-center gap-4">
                           <span className="flex items-center gap-1">
                             <MessageSquare className="h-4 w-4" />
-                            {post.comment_count}
+                            {post.comment_count || 0}
                           </span>
                           <span className="flex items-center gap-1">
                             <ThumbsUp className="h-4 w-4" />
-                            {post.reaction_count}
+                            {post.reaction_count || 0}
                           </span>
                         </div>
                       </div>
@@ -129,59 +135,8 @@ export default function UserDashboardContentPage() {
               </Button>
             </div>
           </TabsContent>
-          {/* <TabsContent value="popular" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {userPosts
-                .filter((post) => post.status === "Published")
-                .sort((a, b) => b.views - a.views)
-                .slice(0, 3)
-                .map((post) => (
-                  <Card key={post.id} className="overflow-hidden">
-                    <div className="aspect-video relative">
-                      <img
-                        src={post.image || "/placeholder.svg"}
-                        alt={post.title}
-                        className="object-cover w-full h-full"
-                      />
-                      <Badge className="absolute top-2 right-2">{post.views} views</Badge>
-                    </div>
-                    <CardHeader className="p-4 pb-0">
-                      <CardTitle className="text-lg">{post.title}</CardTitle>
-                      <CardDescription>{post.category}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-2">
-                      <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                      <div className="flex justify-between items-center mt-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-4">
-                          <span className="flex items-center">
-                            <MessageSquare className="h-4 w-4 mr-1" />
-                            {post.comments}
-                          </span>
-                          <span className="flex items-center">
-                            <ThumbsUp className="h-4 w-4 mr-1" />
-                            {post.reactions}
-                          </span>
-                        </div>
-                        <Button variant="ghost" size="sm" className="h-8 px-2" asChild>
-                          <Link href={`/blog/${post.id}`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-            </div>
-            <div className="flex justify-center">
-              <Button variant="outline" asChild>
-                <Link href="/user/posts">View All Posts</Link>
-              </Button>
-            </div>
-          </TabsContent> */}
         </Tabs>
-
       </div>
     </div>
   )
 }
-

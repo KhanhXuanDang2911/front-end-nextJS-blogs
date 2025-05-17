@@ -139,7 +139,13 @@ export default function UserPostsPage() {
                     <div className="flex items-center gap-3">
                       <div className="relative h-10 w-16 rounded overflow-hidden">
                         <img
-                          src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
+                          src={post.image ?
+                            (post.image.includes('http') ?
+                              post.image.replace('image/upload/', '') :
+                              "https://res.cloudinary.com/dbqoymyi8/" + post.image
+                            )
+                            : "/placeholder.svg"
+                          }
                           alt={post.title}
                           className="object-cover w-full h-full"
                         />

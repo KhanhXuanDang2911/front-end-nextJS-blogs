@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, MessageSquare, ThumbsUp, ArrowRight, Loader2, TagIcon, Hash } from "lucide-react"
+import { format } from "date-fns"
 
 // Sample blog data
 
@@ -30,7 +31,7 @@ export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
       <main className="flex-1">
-      <section className="w-full py-12 md:py-16 lg:py-20 animated-bg text-white">
+        <section className="w-full py-12 md:py-16 lg:py-20 animated-bg text-white">
           <div className="container px-4 md:px-6 text-center">
             <div className="inline-flex items-center justify-center p-2 bg-white bg-opacity-20 rounded-full mb-4 animate-bounce-in">
               <Hash className="h-6 w-6 mr-2" />
@@ -57,11 +58,17 @@ export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
                 className="overflow-hidden card-hover-effect animate-scale-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="aspect-video relative">
+                <div className="relative h-48 overflow-hidden rounded-t-md">
                   <img
-                          src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
-                          alt={post.title}
-                    className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
+                    src={post.image ?
+                      (post.image.includes('http') ?
+                        post.image.replace('image/upload/', '') :
+                        "https://res.cloudinary.com/dbqoymyi8/" + post.image
+                      )
+                      : "/placeholder.svg"
+                    }
+                    alt={post.title}
+                    className="object-cover w-full h-full"
                   />
                   <Badge className={`absolute top-2 left-2 category-badge-${post.category_name}`}>
                     {post.category_name}
@@ -78,7 +85,7 @@ export default function ArticlesPage({ allPosts }: { allPosts: any[] }) {
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {post.created_at}
+                        {post.created_at ? format(new Date(post.created_at), "MMM d, yyyy") : ''}
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1">

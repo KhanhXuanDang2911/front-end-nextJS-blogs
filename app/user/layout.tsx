@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { LayoutDashboard, FileText, Settings, LogOut, User, PlusCircle, ThumbsUp, MessageSquare } from "lucide-react"
 import { getUsersDetail } from "@/service/userService"
-import { getUserId } from "@/utils/auth"
+import { getUserId, logout } from "@/utils/auth"
 
 export default function UserLayout({
   children,
@@ -138,10 +138,10 @@ export default function UserLayout({
               </Link>
             </Button>
             <Button variant="ghost" className="justify-start text-red-500 hover:text-red-500 hover:bg-red-50" asChild>
-              <Link href="/signout">
+              <a href="#" onClick={(e) => { e.preventDefault(); logout(); }}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign out
-              </Link>
+              </a>
             </Button>
           </nav>
         </aside>

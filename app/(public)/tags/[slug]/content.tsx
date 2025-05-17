@@ -39,8 +39,14 @@ export default function ContentOfTagPage({ tagName, taggedPosts }: { tagName: an
                                     >
                                         <div className="aspect-video relative">
                                             <img
-                          src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
-                          alt={post.title}
+                                                src={post.image ?
+                                                    (post.image.includes('http') ?
+                                                        post.image.replace('image/upload/', '') :
+                                                        "https://res.cloudinary.com/dbqoymyi8/" + post.image
+                                                    )
+                                                    : "/placeholder.svg"
+                                                }
+                                                alt={post.title}
                                                 className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
                                             />
                                             <Badge className={`absolute top-2 left-2 category-badge-${post.category_name}`}>

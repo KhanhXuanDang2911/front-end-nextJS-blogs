@@ -44,11 +44,19 @@ export default function SignInPage() {
     // Check if already logged in
     const token = localStorage.getItem("token");
     if (token) {
+      // Ensure cookies and localStorage are in sync
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
+
+      // Sync cookie data with localStorage if missing
+      if (!Cookies.get('token')) {
+        Cookies.set('token', token, { path: '/' });
+        Cookies.set('user', JSON.stringify(userData), { path: '/' });
+      }
+
       if (userData.role === "admin") {
-        router.push("/admin/dashboard");
+        window.location.href = "/admin/dashboard";
       } else {
-        router.push("/user/dashboard");
+        window.location.href = "/user/dashboard";
       }
     }
   }, [router]);

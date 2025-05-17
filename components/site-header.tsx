@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Search, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { UserNav } from "@/components/user-nav"
-import { isAuthenticated } from "@/utils/auth"
+import { isAuthenticated, isAdmin } from "@/utils/auth"
 
 export function SiteHeader() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const isLoggedIn = isAuthenticated()
+  const userIsAdmin = isAdmin()
 
   const routes = [
     {
@@ -26,10 +27,10 @@ export function SiteHeader() {
       label: "Articles",
       href: "/articles",
     },
-    {
+    ...(userIsAdmin ? [{
       label: "Admin",
       href: "/admin",
-    },
+    }] : []),
   ]
 
   return (

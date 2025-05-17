@@ -145,10 +145,10 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
                   <Calendar className="h-4 w-4 text-brand-blue" />
                   <span>{post.published_at ? formatDate(post.published_at) : 'Draft'}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-brand-purple" />
                   <span>{formatDate(post.created_at)}</span>
-                </div>
+                </div> */}
                 {/* <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-brand-pink" />
                   <span>{post.comment_count} comments</span>
@@ -171,8 +171,18 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
 
             {/* Featured Image */}
             <div className="relative w-full h-[400px] mb-8 rounded-lg overflow-hidden shadow-xl animate-scale-in">
-              <Image src={post.image ? "https://res.cloudinary.com/dbqoymyi8/" + post.image : "/placeholder.svg"}
-                alt={post.title} fill className="object-cover" />
+              <Image
+                src={post.image ?
+                  (post.image.includes('http') ?
+                    post.image.replace('image/upload/', '') :
+                    "https://res.cloudinary.com/dbqoymyi8/" + post.image
+                  )
+                  : "/placeholder.svg"
+                }
+                alt={post.title}
+                fill
+                className="object-cover"
+              />
             </div>
 
 

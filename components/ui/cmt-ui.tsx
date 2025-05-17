@@ -23,9 +23,10 @@ import {
 } from "lucide-react"
 import { DownOutlined, UpOutlined } from '@ant-design/icons'
 import CommentTree from "@/app/(public)/blog/[id]/cmt-tree"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Form, Input, Modal } from "antd"
 import ContentOfComment from "@/app/(public)/blog/[id]/content-of-comment"
+import { format } from "date-fns"
 
 export default function CMT_UI({ id, childIds, comment,
     parentId, handleSeemoreSubCmt,
@@ -41,19 +42,22 @@ export default function CMT_UI({ id, childIds, comment,
     }) {
     const [replyText, setReplyText] = useState('')
     const [showRely, setShowRely] = useState(false)
-    // const [isModalOpen, setIsModalOpen] = useState(false);
-    // const [formEdit] = Form.useForm();
-    // const showModal = () => {
-    //     setIsModalOpen(true);
-    // };
+    const [userAvatar, setUserAvatar] = useState<string | null>(null);
+    const [userName, setUserName] = useState<string | null>(null);
 
-    // const handleOk = () => {
-    //     setIsModalOpen(false);
-    // };
-
-    // const handleCancel = () => {
-    //     setIsModalOpen(false);
-    // };
+    useEffect(() => {
+        try {
+            const userData = JSON.parse(localStorage.getItem("user") || "{}");
+            if (userData.avatar) {
+                setUserAvatar(userData.avatar);
+            }
+            if (userData.name) {
+                setUserName(userData.name);
+            }
+        } catch (error) {
+            console.error("Error getting user data:", error);
+        }
+    }, []);
 
     const handleEdit = () => {
         setIsEditing(true)
@@ -65,7 +69,7 @@ export default function CMT_UI({ id, childIds, comment,
             {commentsById[parentId].isShowSubCmt &&
                 <div
                     key={comment.id}
-                >  
+                >
                     <div className={''}>
                         <div className="flex justify-between items-start">
                             <div className="flex items-start gap-3 flex-1">
@@ -76,7 +80,7 @@ export default function CMT_UI({ id, childIds, comment,
                                 <div className="flex flex-col flex-1 gap-1">
                                     <div className="flex items-baseline gap-2">
                                         <span className="font-medium text-md">{comment.author_name}</span>
-                                        <span className="text-xs">{comment.created_at}</span>
+                                        <span className="text-xs">{comment.created_at ? format(new Date(comment.created_at), "MMM d, yyyy 'at' h:mm a") : ''}</span>
                                     </div>
                                     <div className="flex flex-col gap-2.5">
                                         <ContentOfComment handleUpdateComment={handleUpdateCmt}
@@ -166,8 +170,17 @@ export default function CMT_UI({ id, childIds, comment,
                         {showRely && (
                             <div className="mt-4 flex gap-3 mb-4 pl-10 animate-slide-in">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
-                                    <AvatarFallback>YA</AvatarFallback>
+                                    {userAvatar ? (
+                                        <AvatarImage
+                                            src={`https://res.cloudinary.com/dbqoymyi8/${userAvatar}`.replace('image/upload/', '')}
+                                            alt="Your Avatar"
+                                        />
+                                    ) : (
+                                        <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
+                                    )}
+                                    <AvatarFallback>
+                                        {userName ? userName.charAt(0).toUpperCase() : 'U'}
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
                                     <Textarea
