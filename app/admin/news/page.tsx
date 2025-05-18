@@ -505,9 +505,17 @@ export default function NewsManagementPage() {
         maskClosable={true}
         style={{ zIndex: 1051 }}
         getContainer={() => document.body}
+        styles={{
+          body: {
+            maxHeight: '70vh',
+            overflow: 'auto',
+            overscrollBehavior: 'contain',
+            WebkitOverflowScrolling: 'touch'
+          }
+        }}
       >
         {previewNews && (
-          <div className="preview-container p-4">
+          <div className="preview-container p-4" style={{ height: '100%' }}>
             <Tabs
               defaultActiveKey="1"
               items={[

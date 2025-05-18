@@ -33,6 +33,15 @@ import { addReaction, deleteReaction, getReactionsOfUserInNews, updateReaction }
 import { getUserId } from "@/utils/auth"
 import { set } from "date-fns"
 
+// Add a style block for videos
+const videoStyles = `
+  iframe, video {
+    display: block !important;
+    margin: 2rem auto !important;
+    max-width: 100% !important;
+  }
+`;
+
 export default function BlogPostPageContent({ id, post, comments, relatedPosts }:
   { post: any, comments: any, relatedPosts: any, id: any }) {
   const [activeReaction, setActiveReaction] = useState<any | null>(null)
@@ -169,22 +178,10 @@ export default function BlogPostPageContent({ id, post, comments, relatedPosts }
               </div>
             </div>
 
-            {/* Featured Image */}
-            <div className="relative w-full h-[400px] mb-8 rounded-lg overflow-hidden shadow-xl animate-scale-in">
-              <Image
-                src={post.image ?
-                  (post.image.includes('http') ?
-                    post.image.replace('image/upload/', '') :
-                    "https://res.cloudinary.com/dbqoymyi8/" + post.image
-                  )
-                  : "/placeholder.svg"
-                }
-                alt={post.title}
-                fill
-                className="object-cover"
-              />
-            </div>
+            {/* Remove Featured Image Section */}
 
+            {/* Add style tag for videos */}
+            <style dangerouslySetInnerHTML={{ __html: videoStyles }} />
 
             {/* Post Content */}
             <div
