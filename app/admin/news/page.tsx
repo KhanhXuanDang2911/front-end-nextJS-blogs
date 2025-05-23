@@ -57,6 +57,27 @@ export default function NewsManagementPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importResult, setImportResult] = useState<any>(null);
   const [isImportResultOpen, setIsImportResultOpen] = useState(false);
+  const [isCrawlDialogOpen, setIsCrawlDialogOpen] = useState(false);
+  const [crawlSource, setCrawlSource] = useState('vietnamnet');
+  const [crawlCategory, setCrawlCategory] = useState<number | null>(null);
+  const [crawlNumPages, setCrawlNumPages] = useState(2);
+  const [crawlNumArticles, setCrawlNumArticles] = useState(20);
+
+  const categoryOptions = [
+    { id: 1, name: 'Thời sự' },
+    { id: 2, name: 'Thế giới' },
+    { id: 3, name: 'Kinh doanh' },
+    { id: 4, name: 'Giải trí' },
+    { id: 5, name: 'Thể thao' },
+    { id: 6, name: 'Pháp luật' },
+    { id: 7, name: 'Giáo dục' },
+    { id: 8, name: 'Sức khoẻ' },
+    { id: 9, name: 'Đời sống' },
+    { id: 10, name: 'Du lịch' },
+    { id: 11, name: 'Khoa học công nghệ' },
+    { id: 12, name: 'Bất động sản' },
+    { id: 13, name: 'Ô tô - xe máy' },
+  ];
 
   const handleSearch = async () => {
     const news = await searchNewsByTitle(searchTerm)
@@ -239,6 +260,41 @@ export default function NewsManagementPage() {
     return JSON.stringify(selectedItems, null, 2);
   }
 
+  const handleCrawl = async () => {
+    if (!crawlCategory) return;
+    setIsLoading(true);
+    try {
+      const url = `http://127.0.0.1:5000/api/news?source=${crawlSource}&category_id=${crawlCategory}&num_pages=${crawlNumPages}&num_articles=${crawlNumArticles}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Crawl failed');
+      const data = await res.json();
+      let authorId = null;
+      if (typeof window !== 'undefined') {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const userObj = JSON.parse(userStr);
+            authorId = userObj.id;
+          } catch { }
+        }
+      }
+      let articles = data;
+      if (crawlSource === 'vietnamnet' && Array.isArray(data) && data.length > 1) {
+        articles = data.slice(1);
+      }
+      const now = new Date().toISOString();
+      const processed = articles.map((item: any) => ({ ...item, author_id: authorId, published_at: now }));
+      setImportedNews(processed);
+      setSelectAll(true);
+      setIsCrawlDialogOpen(false);
+      setIsImportDialogOpen(true);
+      messageApi.success(`Crawl thành công ${processed.length} bài viết!`);
+    } catch (err) {
+      messageApi.error('Crawl thất bại!');
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     setIsLoading(true);
     fetchNews()
@@ -257,6 +313,13 @@ export default function NewsManagementPage() {
             onClick={handleImportDialogOpen}
           >
             <Upload className="mr-2 h-4 w-4" /> <span>Import News</span>
+          </Button>
+          <Button
+            variant="outline"
+            className='flex items-center gap-1'
+            onClick={() => setIsCrawlDialogOpen(true)}
+          >
+            <span role="img" aria-label="Crawl">🕷️</span> <span>Crawl Data</span>
           </Button>
           <Link href={'/user/posts/new'}>
             <Button className='flex items-center gap-1'>
@@ -634,6 +697,55 @@ export default function NewsManagementPage() {
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteSubmit}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Crawl Data Dialog */}
+      <Dialog open={isCrawlDialogOpen} onOpenChange={setIsCrawlDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Crawl News Data</DialogTitle>
+            <DialogDescription>
+              Chọn nguồn, danh mục, số trang và số bài để crawl dữ liệu.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block font-medium mb-1">Nguồn</label>
+              <select value={crawlSource} onChange={e => setCrawlSource(e.target.value)} className="w-full border rounded p-2">
+                <option value="vietnamnet">Vietnamnet</option>
+                <option value="vnexpress">VnExpress</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Danh mục</label>
+              <select value={crawlCategory ?? ''} onChange={e => setCrawlCategory(Number(e.target.value))} className="w-full border rounded p-2">
+                <option value="">-- Chọn danh mục --</option>
+                {categoryOptions
+                  .filter(cat =>
+                    (crawlSource === 'vietnamnet' && cat.id !== 6) ||
+                    (crawlSource === 'vnexpress' && cat.id !== 13)
+                  )
+                  .map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <label className="block font-medium mb-1">Số trang</label>
+                <input type="number" min={1} value={crawlNumPages} onChange={e => setCrawlNumPages(Number(e.target.value))} className="w-full border rounded p-2" />
+              </div>
+              <div className="flex-1">
+                <label className="block font-medium mb-1">Số bài</label>
+                <input type="number" min={1} value={crawlNumArticles} onChange={e => setCrawlNumArticles(Number(e.target.value))} className="w-full border rounded p-2" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCrawlDialogOpen(false)}>Cancel</Button>
+            <Button disabled={!crawlCategory || isLoading} onClick={handleCrawl}>{isLoading ? 'Đang crawl...' : 'Crawl'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
