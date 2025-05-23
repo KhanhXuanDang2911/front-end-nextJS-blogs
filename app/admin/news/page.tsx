@@ -264,7 +264,7 @@ export default function NewsManagementPage() {
     if (!crawlCategory) return;
     setIsLoading(true);
     try {
-      const url = `http://127.0.0.1:5000/api/news?source=${crawlSource}&category_id=${crawlCategory}&num_pages=${crawlNumPages}&num_articles=${crawlNumArticles}`;
+      const url = `http://127.0.0.1:8000/api/news/crawl/?source=${crawlSource}&category_id=${crawlCategory}&num_pages=${crawlNumPages}&num_articles=${crawlNumArticles}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Crawl failed');
       const data = await res.json();

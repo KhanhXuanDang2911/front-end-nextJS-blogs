@@ -382,7 +382,6 @@ export default function NewPostContentPage({ categories }: { categories: any }) 
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }

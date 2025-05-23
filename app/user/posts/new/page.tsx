@@ -3,10 +3,10 @@ import NewPostContentPage from "./page-content";
 import { unstable_noStore } from "next/cache";
 
 export default async function NewPostPage() {
-        unstable_noStore();
-    
+    unstable_noStore();
+
     const categories = await getCategoryForAdminPage()
-    return(
+    return (
         <>
             <NewPostContentPage categories={categories} />
         </>
